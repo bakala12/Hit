@@ -3,13 +3,14 @@ module Main where
 import Hit.Common
 import Hit.Repository
 import System.Environment
+import CommandManager
 
 getInputArgument :: [String] -> IO (Result FilePath)
 getInputArgument [] = putStrLn "No argument given - assuming current directory" >> getRepositoryDirectory
 getInputArgument (x:xs) = setRepositoryDirectory x >>= return . (transformResult $ const x)
 
 mainLoop :: IO ()
-mainLoop = putStrLn "put commands"
+mainLoop = executeNextCommand >>= (\r -> if r then mainLoop else return ())
 
 main :: IO ()
 main = getArgs >>= getInputArgument >>= (\r -> case r of 
