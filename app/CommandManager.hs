@@ -6,16 +6,19 @@ import Hit.Repository
 import Hit.Common
 import Hit.Commands.Parser
 import Hit.Commands.Types
+import Control.Monad.Trans.Class
+import Control.Monad.Trans.Except
+import System.IO
 
 putPrompt :: String -> IO ()
-putPrompt prompt = putStrLn prompt
+putPrompt prompt = putStr prompt >> hFlush stdout
 
-executeCommand :: Command -> IO ()
-executeCommand c = putStrLn ("Execute command "++(show c))
+executeCommand :: Command -> ExIO ()
+executeCommand c = lift $ putStrLn ("Execute command "++(show c))
 
-executeIfNoExit :: String -> IO Bool
-executeIfNoExit "exit" = return False
-executeIfNoExit str = (return $ parseCommand str) >>= executeCommand >> return True
+executeIfNoExit :: String -> ExIO Bool
+executeIfNoExit "exit" = lift $ return False
+executeIfNoExit str = (lift $ return $ parseCommand str) >>= executeCommand >> return True
 
-executeNextCommand :: IO Bool
-executeNextCommand = getLine >>= executeIfNoExit
+executeNextCommand :: ExIO Bool
+executeNextCommand = lift (putPrompt ">" >> getLine) >>= executeIfNoExit

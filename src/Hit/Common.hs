@@ -1,13 +1,12 @@
 module Hit.Common where
     
-import Control.Applicative
-import System.IO.Error
-import System.IO
+import Control.Monad.Trans.Class
+import Control.Monad.Trans.Except
 
-type Result a = Either String a
+type ExIO a = ExceptT String IO a
 
-transformResult :: (a->b) -> Result a -> Result b
-transformResult fun res = fun <$> res
+--transformResult :: (a->b) -> Result a -> Result b
+--transformResult fun res = fun <$> res
 
-setError :: IOError -> IO (Result a)
-setError e = return $ Left $ show e
+--setError :: IOError -> IO (Result a)
+--setError e = return $ Left $ show e

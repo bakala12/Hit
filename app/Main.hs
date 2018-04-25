@@ -4,15 +4,22 @@ import Hit.Common
 import Hit.Repository
 import System.Environment
 import CommandManager
+import Control.Monad.Trans.Class
+import Control.Monad.Trans.Except
 
-getInputArgument :: [String] -> IO (Result FilePath)
-getInputArgument [] = putStrLn "No argument given - assuming current directory" >> getRepositoryDirectory
-getInputArgument (x:xs) = setRepositoryDirectory x >>= return . (transformResult $ const x)
+setDirectory :: [String] -> ExIO ()
+setDirectory [] = (lift $ putStrLn "No argument given - assuming current directory") >> getRepositoryDirectory >> return ()
+setDirectory (x:xs) = setRepositoryDirectory x
 
 mainLoop :: IO ()
-mainLoop = executeNextCommand >>= (\r -> if r then mainLoop else return ())
+mainLoop = runExceptT executeNextCommand >>= (\r -> case r of 
+    (Right b) -> if b then mainLoop else return ()
+    (Left e) -> putStrLn e >> mainLoop)
+
+runProgram :: [String] -> IO ()
+runProgram args = (runExceptT $ setDirectory args) >>= (\e -> case e of
+    (Left e) -> putStrLn "Error: Cannot set current directory"
+    (Right res) -> mainLoop)
 
 main :: IO ()
-main = getArgs >>= getInputArgument >>= (\r -> case r of 
-    (Left e) -> putStrLn ("Error:" ++ e)
-    (Right path) -> mainLoop)
+main = getArgs >>= runProgram

@@ -3,15 +3,26 @@ module Hit.Repository where
 import Hit.Common
 import System.Directory
 import System.IO.Error
+import Control.Monad.Trans.Class
+import Control.Monad.Trans.Except
 
-getRepositoryDirectory :: IO (Result FilePath)
-getRepositoryDirectory = catchIOError (getCurrentDirectory >>= return . Right) setError
+getRepositoryDirectoryHelper :: IO (Maybe FilePath)
+getRepositoryDirectoryHelper = catchIOError (getCurrentDirectory >>= return . Just) (return . (const Nothing))
 
-setRepositoryDirectory :: FilePath -> IO (Result ())
-setRepositoryDirectory path = catchIOError (setCurrentDirectory path >> (return $ Right ())) setError
+getRepositoryDirectory :: ExIO FilePath
+getRepositoryDirectory = lift getRepositoryDirectoryHelper >>= (\r -> case r of
+    (Just path) -> return path
+    _ -> throwE "Cannot get current directory")
 
-concatHit :: FilePath -> FilePath 
-concatHit path = path++".hit/"
+setRepositoryDirectoryHelper :: FilePath -> IO Bool
+setRepositoryDirectoryHelper path = catchIOError (setCurrentDirectory path >> return True) (return . (const False))
 
-getHitDirectory :: IO (Result FilePath)
-getHitDirectory = getRepositoryDirectory >>= return . (transformResult concatHit)
+setRepositoryDirectory :: FilePath -> ExIO ()
+setRepositoryDirectory path = (lift $ setRepositoryDirectoryHelper path) >>= 
+    (\e -> if e then return () else throwE "Cannot set current directory")
+
+--concatHit :: FilePath -> FilePath 
+--concatHit path = path++".hit/"
+
+--getHitDirectory :: IO (Result FilePath)
+--getHitDirectory = getRepositoryDirectory >>= return . (transformResult concatHit)
