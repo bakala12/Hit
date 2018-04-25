@@ -2,6 +2,7 @@ module Hit.Common where
     
 import Control.Applicative
 import System.IO.Error
+import System.IO
 
 type Result a = Either String a
 
