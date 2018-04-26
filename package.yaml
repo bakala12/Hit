@@ -25,6 +25,7 @@ dependencies:
 - bytestring
 - cryptohash
 - transformers
+- zlib
 
 library:
   source-dirs: src

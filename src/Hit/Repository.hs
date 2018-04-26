@@ -21,8 +21,14 @@ setRepositoryDirectory :: FilePath -> ExIO ()
 setRepositoryDirectory path = (lift $ setRepositoryDirectoryHelper path) >>= 
     (\e -> if e then return () else throwE "Cannot set current directory")
 
---concatHit :: FilePath -> FilePath 
---concatHit path = path++".hit/"
+pasteToPath :: String -> FilePath -> FilePath
+pasteToPath what path = path ++ what
 
---getHitDirectory :: IO (Result FilePath)
---getHitDirectory = getRepositoryDirectory >>= return . (transformResult concatHit)
+getHitDirectoryPath :: ExIO FilePath
+getHitDirectoryPath = getRepositoryDirectory >>= return . (pasteToPath "/.hit/")
+
+isHitRepository :: ExIO Bool
+isHitRepository = getHitDirectoryPath >>= lift . doesDirectoryExist
+
+getPathToObjects :: ExIO FilePath
+getPathToObjects = getHitDirectoryPath >>= return . (pasteToPath "objects")

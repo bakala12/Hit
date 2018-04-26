@@ -1,0 +1,1 @@
+module Hit.Objects.Commit where

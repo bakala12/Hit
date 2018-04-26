@@ -9,11 +9,13 @@ import Hit.Commands.Types
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
 import System.IO
+import Hit.Execution.Init
 
 putPrompt :: String -> IO ()
 putPrompt prompt = putStr prompt >> hFlush stdout
 
 executeCommand :: Command -> ExIO ()
+executeCommand Init = executeInitCommand
 executeCommand c = lift $ putStrLn ("Execute command "++(show c))
 
 executeIfNoExit :: String -> ExIO Bool
