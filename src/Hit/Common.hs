@@ -37,3 +37,8 @@ getSizeOfFile path = convert $ secureFileOperation $ getFileSize path
 
 writeByteStringToFile :: FilePath -> B.ByteString -> ExIO ()
 writeByteStringToFile path byteString = convert $ secureFileOperation $ B.writeFile path byteString
+
+convertLineEndings :: String -> String
+convertLineEndings str = concatMap (\c -> case c of 
+    '\n' -> "\r\n"
+    cc -> show cc) str

@@ -13,8 +13,9 @@ getHash content size = return $ calculateHash ("blob "++(show size)++"\0"++conte
 getBlobHash :: FilePath -> ExIO String
 getBlobHash path = do{
     cont <- readWholeFile path;
+    cont1 <- return $ convertLineEndings cont;
     size <- getSizeOfFile path;
-    getHash cont size
+    getHash cont1 size
 } 
 
 getBlobPath :: String -> ExIO FilePath
@@ -23,8 +24,9 @@ getBlobPath hash = getPathToObjects >>= return . (pasteToPath ("/"++hash))
 createBlob :: FilePath -> ExIO ()
 createBlob path = do{
     cont <- readWholeFile path;
+    cont1 <- return $ convertLineEndings cont;
     hash <- getBlobHash path;
-    byteContent <- return $ compressContent cont;
+    byteContent <- return $ compressContent cont1;
     blobPath <- (getBlobPath hash);
     writeByteStringToFile blobPath byteContent
 }
