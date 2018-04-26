@@ -30,7 +30,7 @@ createNewFile :: FilePath -> String -> String -> ExIO ()
 createNewFile dir name content = convert $ secureFileOperation ((writeFile (combinePath dir name) content)) 
 
 readWholeFile :: FilePath -> ExIO String
-readWholeFile path = convert $ secureFileOperation (withFile path ReadMode hGetContents)
+readWholeFile path = convert $ secureFileOperation (readFile path)
 
 getSizeOfFile :: FilePath -> ExIO Integer
 getSizeOfFile path = convert $ secureFileOperation $ getFileSize path
