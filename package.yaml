@@ -26,6 +26,8 @@ dependencies:
 - cryptohash
 - transformers
 - zlib
+- unix
+- filepath
 
 library:
   source-dirs: src

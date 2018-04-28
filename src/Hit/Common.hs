@@ -6,6 +6,8 @@ import System.IO
 import System.IO.Error
 import System.Directory
 import qualified Data.ByteString.Lazy.Char8 as B
+import qualified System.Posix.Files as FP
+import Text.Printf (printf)
 
 type ExIO a = ExceptT String IO a
 
@@ -37,3 +39,12 @@ getSizeOfFile path = convert $ secureFileOperation $ getFileSize path
 
 writeByteStringToFile :: FilePath -> B.ByteString -> ExIO ()
 writeByteStringToFile path byteString = convert $ secureFileOperation $ B.writeFile path byteString
+
+getUnixFileMode :: FilePath -> ExIO String
+getUnixFileMode path = (convert $ secureFileOperation $ doesDirectoryExist path) >>= (\b -> if b then return "040000" else (lift $ FP.getFileStatus path) >>= return . FP.fileMode >>= return . (printf "%06o") . toInteger)
+
+getDirectoryEntries :: FilePath -> ExIO [FilePath]
+getDirectoryEntries path = convert $ secureFileOperation (listDirectory path)
+
+isDirectoryExist :: FilePath -> ExIO Bool
+isDirectoryExist path = convert $ secureFileOperation $ doesDirectoryExist path
