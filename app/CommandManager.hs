@@ -10,12 +10,14 @@ import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
 import System.IO
 import Hit.Execution.Init
+import Hit.Execution.Commit
 
 putPrompt :: String -> IO ()
 putPrompt prompt = putStr prompt >> hFlush stdout
 
 executeCommand :: Command -> ExIO ()
 executeCommand Init = executeInitCommand
+executeCommand (Commit m) = executeCommitCommand m
 executeCommand c = lift $ putStrLn ("Execute command "++(show c))
 
 executeIfNoExit :: String -> ExIO Bool

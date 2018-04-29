@@ -64,3 +64,9 @@ getRef ref = getHitDirectoryPath >>= return . (pasteToPath ("refs/"++ref)) >>= r
 
 getCurrentHead :: ExIO String
 getCurrentHead = getHitDirectoryPath >>= return . (pasteToPath "head") >>= readWholeFile >>= getRef
+
+setRef :: String -> String -> ExIO ()
+setRef content ref = getHitDirectoryPath >>= return . (pasteToPath ("refs/"++ref)) >>= overrideFile content
+
+writeNextCommit :: String -> ExIO ()
+writeNextCommit commitHash = getHitDirectoryPath >>= return . (pasteToPath "head") >>= readWholeFile >>= setRef commitHash

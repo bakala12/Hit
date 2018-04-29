@@ -34,7 +34,7 @@ getCommitObject msg = do{
 }
 
 getCommitPath :: String -> ExIO FilePath
-getCommitPath hash = getPathToObjects >>= return . (pasteToPath hash)
+getCommitPath hash = getPathToObjects >>= return . (pasteToPath ("/"++hash))
 
 createCommit :: String -> ExIO String
 createCommit msg = getCommitObject msg >>= (\c -> do{

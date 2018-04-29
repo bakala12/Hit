@@ -17,7 +17,7 @@ createEmptyDirectory name = getHitDirectoryPath >>= (\p -> return (combinePath p
 
 executeInit :: ExIO ()
 executeInit = createHitDirectory >> createFile ".hitconfig" "username=User\nemail=email@example.com" >> createFile ".hitlog" "hit init" >>
-    createFile "head" "master" >> createEmptyDirectory "objects" >> createEmptyDirectory "refs"
+    createFile "head" "master" >> createEmptyDirectory "objects" >> createEmptyDirectory "refs" >> createFile "refs/master" ""
 
 executeInitCommand :: ExIO ()
 executeInitCommand = isHitRepository >>= (\r -> if r then throwE "Already a hit repository" else executeInit) 

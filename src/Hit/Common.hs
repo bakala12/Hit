@@ -35,7 +35,7 @@ createNewFile :: FilePath -> String -> String -> ExIO ()
 createNewFile dir name content = convert $ secureFileOperation ((writeFile (combinePath dir name) content)) 
 
 readWholeFile :: FilePath -> ExIO String
-readWholeFile path = convert $ secureFileOperation (readFile path)
+readWholeFile path = convert $ secureFileOperation $! (readFile path)
 
 getSizeOfFile :: FilePath -> ExIO Integer
 getSizeOfFile path = convert $ secureFileOperation $ getFileSize path
@@ -54,3 +54,6 @@ isDirectoryExist path = convert $ secureFileOperation $ doesDirectoryExist path
 
 getTimestamp :: ExIO String
 getTimestamp = lift T.getCurrentTime >>= return . (formatTime defaultTimeLocale "%s")
+
+overrideFile :: String -> FilePath -> ExIO ()
+overrideFile content path = convert $ secureFileOperation (writeFile path $!content)
