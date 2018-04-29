@@ -8,6 +8,9 @@ import System.Directory
 import qualified Data.ByteString.Lazy.Char8 as B
 import qualified System.Posix.Files as FP
 import Text.Printf (printf)
+import qualified Data.String.Utils as U
+import qualified Data.Time.Clock as T
+import Data.Time.Format
 
 type ExIO a = ExceptT String IO a
 
@@ -48,3 +51,6 @@ getDirectoryEntries path = convert $ secureFileOperation (listDirectory path)
 
 isDirectoryExist :: FilePath -> ExIO Bool
 isDirectoryExist path = convert $ secureFileOperation $ doesDirectoryExist path
+
+getTimestamp :: ExIO String
+getTimestamp = lift T.getCurrentTime >>= return . (formatTime defaultTimeLocale "%s")

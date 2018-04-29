@@ -16,7 +16,7 @@ createEmptyDirectory :: String -> ExIO ()
 createEmptyDirectory name = getHitDirectoryPath >>= (\p -> return (combinePath p name)) >>= createNewDirectory
 
 executeInit :: ExIO ()
-executeInit = createHitDirectory >> createFile ".hitconfig" "" >> createFile ".hitlog" "hit init" >>
+executeInit = createHitDirectory >> createFile ".hitconfig" "username=User\nemail=email@example.com" >> createFile ".hitlog" "hit init" >>
     createFile "head" "master" >> createEmptyDirectory "objects" >> createEmptyDirectory "refs"
 
 executeInitCommand :: ExIO ()

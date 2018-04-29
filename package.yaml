@@ -28,6 +28,9 @@ dependencies:
 - zlib
 - unix
 - filepath
+- split
+- MissingH
+- time
 
 library:
   source-dirs: src

@@ -20,11 +20,12 @@ getBlobHash path = do{
 getBlobPath :: String -> ExIO FilePath
 getBlobPath hash = getPathToObjects >>= return . (pasteToPath ("/"++hash))
 
-createBlob :: FilePath -> ExIO ()
+createBlob :: FilePath -> ExIO String
 createBlob path = do{
     cont <- readWholeFile path;
     hash <- getBlobHash path;
     byteContent <- return $ compressContent cont;
     blobPath <- (getBlobPath hash);
-    writeByteStringToFile blobPath byteContent
+    writeByteStringToFile blobPath byteContent;
+    return hash
 }
