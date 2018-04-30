@@ -26,17 +26,17 @@ instance HitObject Blob where
     objectType b = BlobType
     getContent b = "blob "++(show $ size b)++"\0"++(fileContent b)
 
+instance Show Blob where 
+    show = fileContent
+
 data DirectoryEntry = DirectoryEntry{
-    permissions :: Int,
+    permissions :: String,
     entryName :: String,
-    entryHash :: Hash,
-    entryType :: HitObjectType,
-    entrySize :: Int
+    entryHash :: Hash
 }
 
---revisit
 instance Show DirectoryEntry where
-    show de = (show $ permissions de)++" "++(entryName de)++"\0"++(entryHash de)++"\n"
+    show de = (permissions de)++" "++(entryName de)++"\0"++(packHash $ entryHash de)
 
 data Tree = Tree{
     entries :: [DirectoryEntry]
@@ -44,6 +44,9 @@ data Tree = Tree{
 
 contentTree :: Tree -> String
 contentTree t = concatMap (show) (entries t)
+
+entrySize :: DirectoryEntry -> Int
+entrySize = length . show
 
 instance HitObject Tree where
     size t = foldl' (+) 0 $ map entrySize (entries t)
@@ -81,7 +84,7 @@ contentCommit c = "tree "++(tree c)++"\n"++
     "\n"++(message c)
 
 instance HitObject Commit where
-    size = const 4
+    size = const 4 --revisit
     objectType c = CommitType
     getContent c = "commit "++(show $ size c)++"\0"++(contentCommit c)
 
