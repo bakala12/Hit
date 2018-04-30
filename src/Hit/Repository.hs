@@ -7,6 +7,7 @@ import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
 import qualified Data.List.Split as S
 import qualified Data.String.Utils as U
+import Hit.Objects
 
 getRepositoryDirectoryHelper :: IO (Maybe FilePath)
 getRepositoryDirectoryHelper = catchIOError (getCurrentDirectory >>= return . Just) (return . (const Nothing))
@@ -34,14 +35,6 @@ isHitRepository = getHitDirectoryPath >>= lift . doesDirectoryExist
 
 getPathToObjects :: ExIO FilePath
 getPathToObjects = getHitDirectoryPath >>= return . (pasteToPath "objects")
-
-data CommitAuthor = CommitAuthor{
-    name :: String,
-    email :: String
-} deriving Eq
-
-instance Show CommitAuthor where
-    show ca = (name ca) ++ "<"++(email ca)++">"
 
 getValueFromConfig :: [String] -> String -> String
 getValueFromConfig [] key = []

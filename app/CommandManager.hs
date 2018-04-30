@@ -17,7 +17,7 @@ putPrompt prompt = putStr prompt >> hFlush stdout
 
 executeCommand :: Command -> ExIO ()
 executeCommand Init = executeInitCommand
-executeCommand (Commit m) = executeCommitCommand m
+--executeCommand (Commit m) = executeCommitCommand m
 executeCommand c = lift $ putStrLn ("Execute command "++(show c))
 
 executeIfNoExit :: String -> ExIO Bool

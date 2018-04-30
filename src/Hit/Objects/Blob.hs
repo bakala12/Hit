@@ -1,10 +1,10 @@
 module Hit.Objects.Blob where
 
+import Data.ByteString.Lazy.Internal
+import Hit.Objects
+import Hit.Objects.Hash
 import Hit.Common
 import Hit.Repository
-import Hit.Objects.Hash
-import Control.Monad.Trans.Class
-import Control.Monad.Trans.Except
 import Hit.Objects.Compression
 
 getHash :: String -> Integer -> ExIO String

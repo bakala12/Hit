@@ -4,6 +4,8 @@ import Data.ByteString.Char8
 import Crypto.Hash.SHA1
 import Text.Printf (printf)
 
+type Hash = String
+
 toHex :: ByteString -> String
 toHex bs = unpack bs >>= printf "%02x"
 
