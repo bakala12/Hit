@@ -1,10 +1,15 @@
-module Hit.Common where
+module Hit.Common (
+    ExIO, 
+    secureFileOperation,
+    createEmptyDirectory,
+    createNewFile
+) where
     
--- import Control.Monad.Trans.Class
--- import Control.Monad.Trans.Except
--- import System.IO
--- import System.IO.Error
--- import System.Directory
+import Control.Monad.Trans.Class
+import Control.Monad.Trans.Except
+import System.IO
+import System.IO.Error
+import System.Directory
 -- import qualified Data.ByteString.Lazy.Char8 as B
 -- import qualified System.Posix.Files as FP
 -- import Text.Printf (printf)
@@ -12,27 +17,30 @@ module Hit.Common where
 -- import qualified Data.Time.Clock as T
 -- import Data.Time.Format
 
--- type ExIO a = ExceptT String IO a
+type ExIO a = ExceptT String IO a
 
--- setError :: IOError -> IO (Either String a)
--- setError e = return $ Left $ show e
+setError :: IOError -> IO (Either String a)
+setError e = return $ Left $ show e
 
--- convert :: IO (Either String a) -> ExIO a
--- convert result = lift result >>= (\r -> case r of 
---     (Left e) -> throwE e
---     (Right res) -> return res)
+convert :: IO (Either String a) -> ExIO a
+convert result = lift result >>= (\r -> case r of 
+    (Left e) -> throwE e
+    (Right res) -> return res)
 
--- secureFileOperation :: IO a -> IO (Either String a)
--- secureFileOperation op = catchIOError (op >>= return . Right) setError
+secureFileOperation :: IO a -> ExIO a
+secureFileOperation op = convert $ catchIOError (op >>= return . Right) setError
 
--- createNewDirectory :: FilePath -> ExIO ()
--- createNewDirectory path = convert $ secureFileOperation $ createDirectory path
+createEmptyDirectory :: FilePath -> ExIO ()
+createEmptyDirectory path = secureFileOperation $ createDirectory path
 
--- combinePath :: FilePath -> String -> FilePath
--- combinePath dir name = dir++name 
+combinePath :: FilePath -> String -> FilePath
+combinePath dir name = dir++name 
 
--- createNewFile :: FilePath -> String -> String -> ExIO ()
--- createNewFile dir name content = convert $ secureFileOperation ((writeFile (combinePath dir name) content)) 
+createNewFile :: FilePath -> String -> String -> ExIO ()
+createNewFile dir name content = secureFileOperation ((writeFile (combinePath dir name) content)) 
+
+createDirectoryIfNotExist :: FilePath -> ExIO ()
+createDirectoryIfNotExist path = (lift $ doesDirectoryExist path) >>= (\b -> if not b then createEmptyDirectory path else return ())
 
 -- readWholeFile :: FilePath -> ExIO String
 -- readWholeFile path = convert $ secureFileOperation $! (readFile path)

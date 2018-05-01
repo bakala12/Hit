@@ -1,40 +1,35 @@
-module Hit.Repository where
+module Hit.Repository (
+    getRepositoryDirectory,
+    setRepositoryDirectory,
+    getHitDirectoryPath,
+    getPathToObjects
+) where
     
--- import Hit.Common
--- import System.Directory
--- import System.IO.Error
--- import Control.Monad.Trans.Class
--- import Control.Monad.Trans.Except
+import Hit.Common
+import System.Directory
+import System.IO.Error
+import Control.Monad.Trans.Class
+import Control.Monad.Trans.Except
 -- import qualified Data.List.Split as S
 -- import qualified Data.String.Utils as U
--- import Hit.Objects
 
--- getRepositoryDirectoryHelper :: IO (Maybe FilePath)
--- getRepositoryDirectoryHelper = catchIOError (getCurrentDirectory >>= return . Just) (return . (const Nothing))
+getRepositoryDirectory :: ExIO FilePath
+getRepositoryDirectory = secureFileOperation getCurrentDirectory
 
--- getRepositoryDirectory :: ExIO FilePath
--- getRepositoryDirectory = lift getRepositoryDirectoryHelper >>= (\r -> case r of
---     (Just path) -> return path
---     _ -> throwE "Cannot get current directory")
+setRepositoryDirectory :: FilePath -> ExIO ()
+setRepositoryDirectory path = secureFileOperation (setCurrentDirectory path)
 
--- setRepositoryDirectoryHelper :: FilePath -> IO Bool
--- setRepositoryDirectoryHelper path = catchIOError (setCurrentDirectory path >> return True) (return . (const False))
+pasteToPath :: String -> FilePath -> FilePath
+pasteToPath what path = path ++ what
 
--- setRepositoryDirectory :: FilePath -> ExIO ()
--- setRepositoryDirectory path = (lift $ setRepositoryDirectoryHelper path) >>= 
---     (\e -> if e then return () else throwE "Cannot set current directory")
+getHitDirectoryPath :: ExIO FilePath
+getHitDirectoryPath = getRepositoryDirectory >>= return . (pasteToPath "/.hit/")
 
--- pasteToPath :: String -> FilePath -> FilePath
--- pasteToPath what path = path ++ what
-
--- getHitDirectoryPath :: ExIO FilePath
--- getHitDirectoryPath = getRepositoryDirectory >>= return . (pasteToPath "/.hit/")
+getPathToObjects :: ExIO FilePath
+getPathToObjects = getHitDirectoryPath >>= return . (pasteToPath "objects")
 
 -- isHitRepository :: ExIO Bool
 -- isHitRepository = getHitDirectoryPath >>= lift . doesDirectoryExist
-
--- getPathToObjects :: ExIO FilePath
--- getPathToObjects = getHitDirectoryPath >>= return . (pasteToPath "objects")
 
 -- getValueFromConfig :: [String] -> String -> String
 -- getValueFromConfig [] key = []

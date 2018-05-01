@@ -26,11 +26,6 @@ dependencies:
 - cryptohash
 - transformers
 - zlib
-- unix
-- filepath
-- split
-- MissingH
-- time
 
 library:
   source-dirs: src
