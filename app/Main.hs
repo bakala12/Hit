@@ -1,25 +1,28 @@
 module Main where
 
-import Hit.Common
-import Hit.Repository
-import System.Environment
-import CommandManager
-import Control.Monad.Trans.Class
-import Control.Monad.Trans.Except
+-- import Hit.Common
+-- import Hit.Repository
+-- import System.Environment
+-- import CommandManager
+-- import Control.Monad.Trans.Class
+-- import Control.Monad.Trans.Except
 
-setDirectory :: [String] -> ExIO ()
-setDirectory [] = (lift $ putStrLn "No argument given - assuming current directory") >> getRepositoryDirectory >> return ()
-setDirectory (x:xs) = setRepositoryDirectory x
+-- setDirectory :: [String] -> ExIO ()
+-- setDirectory [] = (lift $ putStrLn "No argument given - assuming current directory") >> getRepositoryDirectory >> return ()
+-- setDirectory (x:xs) = setRepositoryDirectory x
 
-mainLoop :: IO ()
-mainLoop = runExceptT executeNextCommand >>= (\r -> case r of 
-    (Right b) -> if b then mainLoop else return ()
-    (Left e) -> putStrLn e >> mainLoop)
+-- mainLoop :: IO ()
+-- mainLoop = runExceptT executeNextCommand >>= (\r -> case r of 
+--     (Right b) -> if b then mainLoop else return ()
+--     (Left e) -> putStrLn e >> mainLoop)
 
-runProgram :: [String] -> IO ()
-runProgram args = (runExceptT $ setDirectory args) >>= (\e -> case e of
-    (Left e) -> putStrLn "Error: Cannot set current directory"
-    (Right res) -> mainLoop)
+-- runProgram :: [String] -> IO ()
+-- runProgram args = (runExceptT $ setDirectory args) >>= (\e -> case e of
+--     (Left e) -> putStrLn "Error: Cannot set current directory"
+--     (Right res) -> mainLoop)
+
+-- main :: IO ()
+-- main = getArgs >>= runProgram
 
 main :: IO ()
-main = getArgs >>= runProgram
+main = return ()
