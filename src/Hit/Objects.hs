@@ -61,30 +61,31 @@ data CommitAuthor = CommitAuthor{
 } deriving Eq
     
 instance Show CommitAuthor where
-    show ca = (name ca) ++ "<"++(email ca)++">"
+    show ca = (name ca) ++ " <"++(email ca)++">"
 
 data Commit = Commit {
     tree :: Hash,
     message :: String,
     author :: CommitAuthor,
     committer :: CommitAuthor,
-    timestamp :: String,
+    authorTimestamp :: String,
+    committerTimestamp :: String,
     parents :: [Hash]    
 }
     
 showParents :: [Hash] -> String
-showParents hashes = (foldl (\acc x -> acc++" "++x) "parents" hashes) ++ "\n"
+showParents [] = ""
+showParents hashes = (foldl (\acc x -> acc++" "++x) "parent" hashes) ++ "\n"
     
---revisit
 contentCommit :: Commit -> String
 contentCommit c = "tree "++(tree c)++"\n"++
-    "parent " ++ 
-    "author " ++
-    "committer" ++
-    "\n"++(message c)
+    (showParents $ parents c) ++ 
+    "author " ++ (show $ author c)++" "++ (authorTimestamp c) ++"\n"++
+    "committer " ++ (show $ committer c)++" "++(committerTimestamp c) ++"\n"++
+    "\n"++(message c) ++ "\n"
 
 instance HitObject Commit where
-    size = const 4 --revisit
+    size = length . contentCommit
     objectType c = CommitType
     getContent c = "commit "++(show $ size c)++"\0"++(contentCommit c)
 
