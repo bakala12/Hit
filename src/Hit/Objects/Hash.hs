@@ -1,7 +1,8 @@
 module Hit.Objects.Hash (
     calculateHash,
     Hash,
-    packHash
+    packHash,
+    unpackHash
 ) where
 
 import qualified Data.ByteString.Char8 as C 
@@ -28,3 +29,6 @@ toBytes hash = snd $ foldr helper ((-1),[]) hash
     
 packHash :: Hash -> String
 packHash hash = toBytes hash >>= T.printf "%c"
+
+unpackHash :: String -> String
+unpackHash str = str >>= T.printf "%02x"

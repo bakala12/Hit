@@ -26,6 +26,7 @@ dependencies:
 - cryptohash
 - transformers
 - zlib
+- parsec
 
 library:
   source-dirs: src

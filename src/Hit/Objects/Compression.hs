@@ -7,5 +7,5 @@ import qualified Data.ByteString.Lazy.Internal as B
 compressContent :: String -> B.ByteString
 compressContent content = compress $ pack content
 
---decompressContent :: ByteString -> String
---decompressContent byteStr = unpack $ decompress byteStr 
+decompressContent :: ByteString -> String
+decompressContent byteStr = unpack $ decompress byteStr 

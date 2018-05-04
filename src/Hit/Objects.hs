@@ -12,6 +12,12 @@ instance Show HitObjectType where
     show TreeType = "tree"
     show CommitType = "commit"
 
+readHitObjectType :: String -> (Maybe HitObjectType)
+readHitObjectType "blob" = Just $ BlobType
+readHitObjectType "tree" = Just $ TreeType
+readHitObjectType "commit" = Just $ CommitType
+readHitObjectType _ = Nothing
+
 class HitObject a where
     size :: a -> Int
     objectType :: a -> HitObjectType
