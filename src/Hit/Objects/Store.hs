@@ -53,11 +53,18 @@ entryParser = do{
 treeParser :: P.GenParser Char st Tree
 treeParser = P.many entryParser >>= (\e -> return Tree {entries = e})
 
-commitParentParser :: P.GenParser Char st Hash
-commitParentParser = P.space >> P.many (P.noneOf " \n")
+remainingHashesParser :: P.GenParser Char st [Hash]
+remainingHashesParser = (P.char ' ' >> parentsHashesParser) TP.<|> (return [])
+
+parentsHashesParser :: P.GenParser Char st [Hash]
+parentsHashesParser = do{
+    f <- P.many $ P.noneOf " \n";
+    r <- remainingHashesParser;
+    return (f:r)
+} 
 
 commitParentsParser :: P.GenParser Char st [Hash]
-commitParentsParser = (P.string "parent" >> P.many commitParentParser >>= (\h -> P.newline >> return h)) TP.<|> (return [])
+commitParentsParser = (P.string "parent " >> parentsHashesParser >>= (\h -> newline >> return h)) TP.<|> (return [])
 
 commitAuthorParser :: P.GenParser Char st (CommitAuthor, String)
 commitAuthorParser = do{
@@ -86,7 +93,7 @@ commitParser = do{
     mess <- P.many P.anyChar>>= return . removeLast; --removing additional \n from end
     return Commit {tree = treeHash, parents = par, author = a, authorTimestamp = at, 
         committer = c, committerTimestamp = ct, message = mess}
-} 
+}  
 
 objectHeaderParser :: String -> P.GenParser Char st (Maybe HitObjectType)
 objectHeaderParser t = P.string t >> P.many (P.noneOf "\0") >> P.char '\0' >> (return $ readHitObjectType t)
