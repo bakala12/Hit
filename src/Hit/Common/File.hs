@@ -1,5 +1,4 @@
-module Hit.Common (
-    ExIO, 
+module Hit.Common.File (
     secureFileOperation,
     createEmptyDirectory,
     createNewFile
@@ -10,14 +9,12 @@ import Control.Monad.Trans.Except
 import System.IO
 import System.IO.Error
 import System.Directory
+import Hit.Common.Data
 -- import qualified Data.ByteString.Lazy.Char8 as B
--- import qualified System.Posix.Files as FP
 -- import Text.Printf (printf)
 -- import qualified Data.String.Utils as U
 -- import qualified Data.Time.Clock as T
 -- import Data.Time.Format
-
-type ExIO a = ExceptT String IO a
 
 setError :: IOError -> IO (Either String a)
 setError e = return $ Left $ show e
@@ -50,9 +47,6 @@ createDirectoryIfNotExist path = (lift $ doesDirectoryExist path) >>= (\b -> if 
 
 -- writeByteStringToFile :: FilePath -> B.ByteString -> ExIO ()
 -- writeByteStringToFile path byteString = convert $ secureFileOperation $ B.writeFile path byteString
-
--- getUnixFileMode :: FilePath -> ExIO String
--- getUnixFileMode path = (convert $ secureFileOperation $ doesDirectoryExist path) >>= (\b -> if b then return "040000" else (lift $ FP.getFileStatus path) >>= return . FP.fileMode >>= return . (printf "%06o") . toInteger)
 
 -- getDirectoryEntries :: FilePath -> ExIO [FilePath]
 -- getDirectoryEntries path = convert $ secureFileOperation (listDirectory path)

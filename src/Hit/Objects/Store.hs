@@ -2,7 +2,8 @@ module Hit.Objects.Store where
 
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
-import Hit.Common
+import Hit.Common.Data
+import Hit.Common.File
 import Hit.Repository
 import Hit.Objects
 import Hit.Objects.Hash

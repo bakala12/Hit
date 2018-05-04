@@ -11,8 +11,7 @@ import qualified Text.Printf as T
 import Data.Word
 import qualified Data.ByteString as B
 import Data.Char (digitToInt)
-
-type Hash = String
+import Hit.Common.Data
 
 toHex :: C.ByteString -> Hash
 toHex bs = C.unpack bs >>= T.printf "%02x"

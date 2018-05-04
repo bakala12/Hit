@@ -2,6 +2,7 @@ module Hit.Objects where
 
 import Data.List
 import Data.ByteString.Lazy.Internal
+import Hit.Common.Data
 import Hit.Objects.Hash
 import Hit.Objects.Compression
 
@@ -36,7 +37,7 @@ instance Show Blob where
     show = fileContent
 
 data DirectoryEntry = DirectoryEntry{
-    permissions :: String,
+    permissions :: HitPermissions,
     entryName :: String,
     entryHash :: Hash
 }

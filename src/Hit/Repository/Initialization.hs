@@ -1,8 +1,8 @@
 module Hit.Repository.Initialization where
 
-import Hit.Common
+import Hit.Common.Data
+import Hit.Common.File
 import Hit.Repository
-import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
 
 initRepository :: ExIO ()

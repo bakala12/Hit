@@ -27,6 +27,7 @@ dependencies:
 - transformers
 - zlib
 - parsec
+- unix
 
 library:
   source-dirs: src

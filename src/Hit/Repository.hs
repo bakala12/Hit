@@ -5,7 +5,8 @@ module Hit.Repository (
     getPathToObjects
 ) where
     
-import Hit.Common
+import Hit.Common.Data
+import Hit.Common.File
 import System.Directory
 import System.IO.Error
 import Control.Monad.Trans.Class
