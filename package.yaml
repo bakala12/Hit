@@ -23,11 +23,12 @@ dependencies:
 - base >= 4.7 && < 5
 - directory
 - bytestring
-- cryptohash
+- cryptohash #SHA1
 - transformers
-- zlib
+- zlib #object serialization
 - parsec
-- unix
+- unix #file permissions
+- time #timestamp
 
 library:
   source-dirs: src

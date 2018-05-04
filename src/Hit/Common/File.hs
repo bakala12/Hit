@@ -54,8 +54,5 @@ createDirectoryIfNotExist path = (lift $ doesDirectoryExist path) >>= (\b -> if 
 -- isDirectoryExist :: FilePath -> ExIO Bool
 -- isDirectoryExist path = convert $ secureFileOperation $ doesDirectoryExist path
 
--- getTimestamp :: ExIO String
--- getTimestamp = lift T.getCurrentTime >>= return . (formatTime defaultTimeLocale "%s")
-
 -- overrideFile :: String -> FilePath -> ExIO ()
 -- overrideFile content path = convert $ secureFileOperation (writeFile path $!content)
