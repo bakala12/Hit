@@ -29,6 +29,8 @@ dependencies:
 - parsec
 - unix #file permissions
 - time #timestamp
+- MissingH #string utils
+- strict #strict IO
 
 library:
   source-dirs: src

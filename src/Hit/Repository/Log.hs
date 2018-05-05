@@ -1,0 +1,1 @@
+module Hit.Repository.Log where

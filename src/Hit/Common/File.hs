@@ -1,7 +1,9 @@
 module Hit.Common.File (
     secureFileOperation,
     createEmptyDirectory,
-    createNewFile
+    createNewFile,
+    readWholeFile,
+    writeWholeFile
 ) where
     
 import Control.Monad.Trans.Class
@@ -10,6 +12,7 @@ import System.IO
 import System.IO.Error
 import System.Directory
 import Hit.Common.Data
+import qualified System.IO.Strict as IOS
 -- import qualified Data.ByteString.Lazy.Char8 as B
 -- import Text.Printf (printf)
 -- import qualified Data.String.Utils as U
@@ -39,20 +42,8 @@ createNewFile dir name content = secureFileOperation ((writeFile (combinePath di
 createDirectoryIfNotExist :: FilePath -> ExIO ()
 createDirectoryIfNotExist path = (lift $ doesDirectoryExist path) >>= (\b -> if not b then createEmptyDirectory path else return ())
 
--- readWholeFile :: FilePath -> ExIO String
--- readWholeFile path = convert $ secureFileOperation $! (readFile path)
+readWholeFile :: FilePath -> ExIO String
+readWholeFile path = secureFileOperation (IOS.readFile path)
 
--- getSizeOfFile :: FilePath -> ExIO Integer
--- getSizeOfFile path = convert $ secureFileOperation $ getFileSize path
-
--- writeByteStringToFile :: FilePath -> B.ByteString -> ExIO ()
--- writeByteStringToFile path byteString = convert $ secureFileOperation $ B.writeFile path byteString
-
--- getDirectoryEntries :: FilePath -> ExIO [FilePath]
--- getDirectoryEntries path = convert $ secureFileOperation (listDirectory path)
-
--- isDirectoryExist :: FilePath -> ExIO Bool
--- isDirectoryExist path = convert $ secureFileOperation $ doesDirectoryExist path
-
--- overrideFile :: String -> FilePath -> ExIO ()
--- overrideFile content path = convert $ secureFileOperation (writeFile path $!content)
+writeWholeFile :: FilePath -> String -> ExIO ()
+writeWholeFile path content = secureFileOperation (writeFile path content)
