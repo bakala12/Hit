@@ -18,25 +18,24 @@ blobToDirectoryEntry dirPath name = do {
     h <- return $ hashObject blob;
     p <- (getHitPermissions (dirPath++"/"++name));
     return $ DirectoryEntry {permissions = p, entryName = name, entryHash = h} 
-}
+} 
 
-createDirectoryEntry :: FilePath -> String -> [DirectoryEntry] -> ExIO DirectoryEntry
-createDirectoryEntry path name ent = do{
-    p <- (getHitPermissions (path++"/"++name));
-    tree <- return Tree {entries = ent};
-    h <- return $ hashObject tree;
-    lift $ putStrLn (show ent);
-    lift $ putStrLn ("tree "++ name ++ " hash "++ h ++ " entrySize " ++ (show $ length ent));
-    return $ DirectoryEntry {permissions = p, entryName = name, entryHash = h}
-}
+listDirectory :: FilePath -> ExIO [FilePath]
+listDirectory path = (getNotIgnoredDirectoryEntries path)
 
 treeToDirectoryEntry :: FilePath -> String -> ExIO DirectoryEntry
-treeToDirectoryEntry path name = listDirectory (path++"/"++name) >>= (createDirectoryEntry path name)
+treeToDirectoryEntry dirPath name = do{
+    path <- return (dirPath++"/"++name);
+    p <- getHitPermissions path;
+    t <- getTree path;
+    h <- return $ hashObject t;
+    return $ DirectoryEntry {permissions = p, entryName = name, entryHash = h} 
+}
 
 toDirectoryEntry :: FilePath -> String -> ExIO DirectoryEntry
-toDirectoryEntry path name = (isDirectory (path++"/"++name)) >>= (\b -> if b 
-    then treeToDirectoryEntry path name
-    else blobToDirectoryEntry path name) 
+toDirectoryEntry dirPath name = isDirectory (dirPath++"/"++name) >>= (\b -> if b
+    then treeToDirectoryEntry dirPath name
+    else blobToDirectoryEntry dirPath name)
 
-listDirectory :: FilePath -> ExIO [DirectoryEntry]
-listDirectory path = (getNotIgnoredDirectoryEntries path) >>= (mapM (toDirectoryEntry path))
+getTree :: FilePath -> ExIO Tree
+getTree path = listDirectory path >>= (mapM (toDirectoryEntry path)) >>= return . Tree

@@ -11,7 +11,7 @@ import qualified System.Posix.Files as FP
 import Text.Printf (printf)
 
 getUnixFileMode :: FilePath -> ExIO HitPermissions
-getUnixFileMode path = (lift $ FP.getFileStatus path) >>= return . FP.fileMode >>= return . (printf "%06o") . toInteger
+getUnixFileMode path = (lift $ FP.fileAccess path False False True) >>= (\r -> if r then return "100755" else return "100644")
 
 getPermissionsFor :: FilePath -> Bool -> ExIO HitPermissions
 getPermissionsFor path isDir = if isDir then return "040000" else getUnixFileMode path  
