@@ -3,7 +3,9 @@ module Hit.Common.File (
     createEmptyDirectory,
     createNewFile,
     readWholeFile,
-    writeWholeFile
+    writeWholeFile,
+    isDirectory,
+    getDirectoryEntries
 ) where
     
 import Control.Monad.Trans.Class
@@ -47,3 +49,9 @@ readWholeFile path = secureFileOperation (IOS.readFile path)
 
 writeWholeFile :: FilePath -> String -> ExIO ()
 writeWholeFile path content = secureFileOperation (writeFile path content)
+
+isDirectory :: FilePath -> ExIO Bool
+isDirectory path = secureFileOperation $ doesDirectoryExist path
+
+getDirectoryEntries :: FilePath -> ExIO [String]
+getDirectoryEntries path = secureFileOperation $ listDirectory path
