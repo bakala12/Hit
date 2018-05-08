@@ -23,3 +23,6 @@ getTreeVersion hash = getPathToObjects >>= return . (++("/"++hash)) >>= restoreT
 getVersion :: Hash -> ExIO Tree
 getVersion commitHash = getPathToObjects >>= return . (++("/"++commitHash)) >>= restoreCommit
     >>= return . tree >>= getTreeVersion
+
+getCurrentBranchVersion :: ExIO Tree
+getCurrentBranchVersion = getCurrentBranch >>= getTreeVersion
