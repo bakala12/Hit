@@ -27,7 +27,7 @@ dependencies:
 - transformers
 - zlib #object serialization
 - parsec
-- unix #file permissions
+#- unix #file permissions
 - time #timestamp
 - MissingH #string utils
 - strict #strict IO

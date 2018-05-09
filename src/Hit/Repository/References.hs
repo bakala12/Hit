@@ -7,6 +7,7 @@ import Hit.Repository
 import Hit.Common.File
 import Hit.Objects
 import Hit.Objects.Store
+import Control.Applicative
 
 getPathToRefs :: ExIO FilePath
 getPathToRefs = getHitDirectoryPath >>= return . (++"/refs")
@@ -25,4 +26,4 @@ getVersion commitHash = getPathToObjects >>= return . (++("/"++commitHash)) >>= 
     >>= return . tree >>= getTreeVersion
 
 getCurrentBranchVersion :: ExIO Tree
-getCurrentBranchVersion = getCurrentBranch >>= getTreeVersion
+getCurrentBranchVersion = getCurrentBranch >>= (\r -> if length r == 40 then getVersion r else return $ Tree {entries = []})
