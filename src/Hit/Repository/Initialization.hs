@@ -16,3 +16,6 @@ initRepository = do{
     createEmptyDirectory (path++"/refs");
     createNewFile path "refs/master" ""
 } 
+
+isInitialized :: ExIO Bool
+isInitialized = getHitDirectoryPath >>= isDirectory

@@ -7,3 +7,5 @@ type Hash = String
 type HitPermissions = String
 type HitTimestamp = String
 type Branch = String
+
+type CommitMessage = String

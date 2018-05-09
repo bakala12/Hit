@@ -1,69 +1,32 @@
 module Hit.Commands.Parser
      where 
 
--- --hit init
--- --hit diff <file>
--- --hit status
--- --hit commit <message>
--- --hit checkout <branchName>
--- --hit checkout <commitHash>
--- --hit newbranch <branchName>
--- --hit deletebranch <branchName>
--- --hit merge <branchName>
--- --hit log <int>
--- --hit history <int>
+import Control.Monad.Trans.Class
+import Control.Monad.Trans.Except
+import Hit.Common.Data
+import Hit.Commands.Data
+import Text.ParserCombinators.Parsec
+import qualified Text.Parsec as TP
 
--- import Text.ParserCombinators.ReadP
--- import Hit.Commands.Types
--- import Control.Applicative
--- import Text.Read (readMaybe)
+noParameterCommandParser :: String -> a -> GenParser Char st a
+noParameterCommandParser name constructor = string "hit" >> spaces >> string name >> return constructor
 
--- parseHit :: ReadP String
--- parseHit = string "hit" 
+singleParameterCommandParser :: String -> (b -> a) -> GenParser Char st b -> GenParser Char st a
+singleParameterCommandParser name constructor argParser = string "hit" >> spaces >> string name >> spaces >> (constructor <$> argParser)
 
--- space :: ReadP Char
--- space = char ' '
+stringParser :: GenParser Char st String
+stringParser = many anyChar
 
--- parseCommandTypeHelper :: ReadP String
--- parseCommandTypeHelper = string "init" <|>
---                          string "diff" <|>
---                          string "status" <|>
---                          string "commit" <|>
---                          string "checkout" <|>
---                          string "newbranch" <|>
---                          string "deletebranch" <|>
---                          string "merge" <|>
---                          string "log" <|>
---                          string "history"
+parseInput :: GenParser Char () a -> String -> ExIO a
+parseInput parser str = case TP.parse parser "" str of
+    (Left e) -> throwE $ show e
+    (Right x) -> return x 
 
--- parseCommandType :: ReadP CommandType
--- parseCommandType = parseCommandTypeHelper >>= return . readCommandType
+instance ParseableCommand InitCommand where
+    parseCommand = parseInput (noParameterCommandParser "init" InitCommand)
 
--- parseInt :: ReadP Int
--- parseInt = many1 get >>= (\r -> case readMaybe r :: Maybe Int of 
---     (Just x) -> return x
---     _ -> pfail)
+instance ParseableCommand CommitCommand where
+    parseCommand = parseInput (singleParameterCommandParser "commit" CommitCommand stringParser)
 
--- stringParam :: ReadP String
--- stringParam = munch (/= ' ')
-
--- parseParameters :: CommandType -> ReadP Command
--- parseParameters InitType = return Init
--- parseParameters DiffType = space >> stringParam >>= return . Diff
--- parseParameters StatusType = return Status
--- parseParameters CommitType = space >> stringParam >>= return . Commit
--- parseParameters CheckoutType = space >> stringParam >>= return . Checkout
--- parseParameters NewBranchType = space >> stringParam >>= return . NewBranch
--- parseParameters DeleteBranchType = space >> stringParam >>= return . DeleteBranch
--- parseParameters MergeType = space >> stringParam >>= return . Merge
--- parseParameters LogType = space >> parseInt >>= return . Log
--- parseParameters HistoryType = space >> parseInt >>= return . History
--- parseParameters _ = return Invalid
-
--- parseCommand' :: ReadP Command
--- parseCommand' = parseHit >> space >> parseCommandType >>= parseParameters
-
--- parseCommand :: String -> Command
--- parseCommand input = case readP_to_S parseCommand' input of 
---     [x] -> fst x
---     _ -> Invalid
+instance ParseableCommand StatusCommand where
+    parseCommand = parseInput (noParameterCommandParser "status" StatusCommand)
