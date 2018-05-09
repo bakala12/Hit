@@ -21,9 +21,19 @@ getBranchCommitHash branch = getPathToRefs >>= return . (++("/"++ branch)) >>= r
 getTreeVersion :: Hash -> ExIO Tree
 getTreeVersion hash = getPathToObjects >>= return . (++("/"++hash)) >>= restoreTree
 
+splitPath :: Hash -> FilePath
+splitPath (x:y:xs) = (x:y:'/':xs) 
+splitPath l = l
+
 getVersion :: Hash -> ExIO Tree
-getVersion commitHash = getPathToObjects >>= return . (++("/"++commitHash)) >>= restoreCommit
-    >>= return . tree >>= getTreeVersion
+getVersion commitHash = getPathToObjects >>= return . (++("/"++ (splitPath commitHash))) >>= restoreCommit
+    >>= return . tree >>= getTreeVersion . splitPath
 
 getCurrentBranchVersion :: ExIO Tree
-getCurrentBranchVersion = getCurrentBranch >>= (\r -> if length r == 40 then getVersion r else return $ Tree {entries = []})
+getCurrentBranchVersion = getCurrentBranch >>= getBranchCommitHash >>= (\r -> if length r == 40 then getVersion r else return $ Tree {entries = []})
+
+writeCommit :: Hash -> ExIO ()
+writeCommit hash = do {
+    branch <- getCurrentBranch; 
+    getPathToRefs >>= return . (++("/"++ branch)) >>= (\p -> writeWholeFile p hash) 
+}
