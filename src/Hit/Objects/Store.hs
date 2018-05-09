@@ -14,7 +14,7 @@ import Control.Applicative
 import qualified Text.Parsec as TP
 
 splitFirstTwoAndCreate :: FilePath -> Hash -> ExIO (String)
-splitFirstTwoAndCreate path (x:y:xs) = createEmptyDirectory (path++['/',x,y]) >> return (path++['/',x,y, '/']++xs)
+splitFirstTwoAndCreate path (x:y:xs) = createDirectoryIfNotExist (path++['/',x,y]) >> return (path++['/',x,y, '/']++xs)
 splitFirstTwoAndCreate _ _ = throwE "Incorrect hash - cannot create path"
 
 getPathToObject :: Hash -> ExIO FilePath
@@ -25,7 +25,8 @@ storeObject obj = do{
     hash <- return $ hashObject obj;
     path <- getPathToObject hash;
     content <- return $ compressObject obj;
-    secureFileOperation $ B.writeFile path content
+    b <- isExistingFile path;
+    if b then return () else secureFileOperation $ B.writeFile path content
 }
 
 blobParser :: P.GenParser Char st Blob

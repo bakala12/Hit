@@ -5,7 +5,9 @@ module Hit.Common.File (
     readWholeFile,
     writeWholeFile,
     isDirectory,
-    getDirectoryEntries
+    getDirectoryEntries,
+    isExistingFile,
+    createDirectoryIfNotExist
 ) where
     
 import Control.Monad.Trans.Class
@@ -55,3 +57,6 @@ isDirectory path = secureFileOperation $ doesDirectoryExist path
 
 getDirectoryEntries :: FilePath -> ExIO [String]
 getDirectoryEntries path = secureFileOperation $ listDirectory path
+
+isExistingFile :: FilePath -> ExIO Bool
+isExistingFile path = secureFileOperation $ doesFileExist path

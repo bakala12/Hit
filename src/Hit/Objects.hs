@@ -43,17 +43,20 @@ data DirectoryEntry = DirectoryEntry{
 }
 
 instance Show DirectoryEntry where
-    show de = (permissions de)++" "++(entryName de)++"\0"++(packHash $ entryHash de)
+    show de = (permissions de)++" "++(entryName de)++"\0"++(entryHash de)
 
 data Tree = Tree{
     entries :: [DirectoryEntry]
 }
 
+writeEntry :: DirectoryEntry -> String 
+writeEntry de = (permissions de)++" "++(entryName de)++"\0"++(packHash $ entryHash de)
+
 contentTree :: Tree -> String
-contentTree t = concatMap (show) (entries t)
+contentTree t = concatMap writeEntry (entries t)
 
 entrySize :: DirectoryEntry -> Int
-entrySize = length . show
+entrySize = length . writeEntry
 
 instance HitObject Tree where
     size t = foldl' (+) 0 $ map entrySize (entries t)
