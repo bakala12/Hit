@@ -63,5 +63,3 @@ getChanges = do{
     lastSaved <- getCurrentBranchVersion;
     compareTrees current lastSaved;
 }
-
-

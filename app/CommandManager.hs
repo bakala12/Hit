@@ -1,28 +1,19 @@
-module CommandManager where -- (
---     executeNextCommand)
---     where
+module CommandManager where
+    
+import Hit.Common.Data
+import Hit.Commands.Parser
+import Hit.Commands.Data
+import Hit.Commands.Execution
+import Control.Monad.Trans.Class
+import Control.Monad.Trans.Except
+import System.IO
 
--- import Hit.Repository
--- import Hit.Common
--- import Hit.Commands.Parser
--- import Hit.Commands.Types
--- import Control.Monad.Trans.Class
--- import Control.Monad.Trans.Except
--- import System.IO
--- import Hit.Execution.Init
--- import Hit.Execution.Commit
+putPrompt :: String -> IO ()
+putPrompt prompt = putStr prompt >> hFlush stdout
 
--- putPrompt :: String -> IO ()
--- putPrompt prompt = putStr prompt >> hFlush stdout
+executeIfNoExit :: String -> ExIO Bool
+executeIfNoExit "exit" = lift $ return False
+executeIfNoExit str = (parseHitCommand str) >>= executeHitCommand >> return True
 
--- executeCommand :: Command -> ExIO ()
--- executeCommand Init = executeInitCommand
--- --executeCommand (Commit m) = executeCommitCommand m
--- executeCommand c = lift $ putStrLn ("Execute command "++(show c))
-
--- executeIfNoExit :: String -> ExIO Bool
--- executeIfNoExit "exit" = lift $ return False
--- executeIfNoExit str = (lift $ return $ parseCommand str) >>= executeCommand >> return True
-
--- executeNextCommand :: ExIO Bool
--- executeNextCommand = lift (putPrompt ">" >> getLine) >>= executeIfNoExit
+executeNextCommand :: ExIO Bool
+executeNextCommand = lift (putPrompt ">" >> getLine) >>= executeIfNoExit

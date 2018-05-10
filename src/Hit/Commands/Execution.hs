@@ -14,6 +14,7 @@ executeInitCommand = isInitialized >>= (\b -> if b
     then lift $ putStrLn "Already a hit repository."
     else initRepository)
 
+-- TODO:: Find changes first!!! If nothing to commit then do not commit
 executeCommitCommand :: String -> ExIO ()
 executeCommitCommand msg = do{
     commit <- createCommit msg;
@@ -22,8 +23,7 @@ executeCommitCommand msg = do{
     lift $ putStrLn ("Commit "++hash++ " done.")
 }
 
-instance ExecutableCommand InitCommand where
-    executeCommand _ = executeInitCommand
-
-instance ExecutableCommand CommitCommand where
-    executeCommand c = executeCommitCommand $ message c
+executeHitCommand :: HitCommand -> ExIO ()
+executeHitCommand InitCommand = executeInitCommand
+executeHitCommand (CommitCommand message) = executeCommitCommand message
+executeHitCommand _ = lift $ putStrLn "Invalid command"
