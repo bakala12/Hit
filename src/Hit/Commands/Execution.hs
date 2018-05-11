@@ -14,17 +14,21 @@ executeInitCommand = isInitialized >>= (\b -> if b
     then lift $ putStrLn "Already a hit repository."
     else initRepository >> (lift $ putStrLn "Initialized empty repository"))
 
--- TODO: Find changes first!!! If nothing to commit then do not commit
--- TODO: Make sure repository is initialized
+checkIfRepositoryAndExecute :: ExIO () -> ExIO ()
+checkIfRepositoryAndExecute command = isInitialized >>= (\i -> if not i
+    then (lift $ putStrLn "Not a hit repository")
+    else command) 
+
 executeCommitCommand :: String -> ExIO ()
-executeCommitCommand msg = isInitialized >>= (\init -> if not init 
-        then (lift $ putStrLn "Not a hit repository")
-        else do{
+executeCommitCommand msg = checkIfRepositoryAndExecute $ do{
             commit <- createCommit msg;
             hash <- return $ hashObject commit;
             writeCommit hash;
             lift $ putStrLn ("Commit "++hash++ " done.")
-        })
+        }
+
+executeStatusCommand :: ExIO ()
+executeStatusCommand = return ()
 
 executeHitCommand :: HitCommand -> ExIO ()
 executeHitCommand InitCommand = executeInitCommand

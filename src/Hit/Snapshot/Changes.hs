@@ -54,12 +54,18 @@ matchChanges (c:cs) lastSaved = case m of
         recR = matchChanges cs list
 
 compareTrees :: Tree -> Tree -> ExIO [Change]
-compareTrees current lastSaved = return $ matchChanges (entries current) (entries lastSaved)
+compareTrees current lastSaved = return $ matchChanges cur ls
+    where 
+        (cur, ls) = getNonIdentical (entries current) (entries lastSaved)
 
 getChanges :: ExIO [Change]
 getChanges = do{
     p <- getRepositoryDirectory;
     current <- getTree p False;
     lastSaved <- getCurrentBranchVersion;
+    lift $ putStrLn "Current:";
+    lift $ putStrLn $ getContent current;
+    lift $ putStrLn "Last saved";
+    lift $ putStrLn $ getContent lastSaved;
     compareTrees current lastSaved;
 }
