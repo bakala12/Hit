@@ -22,12 +22,14 @@ checkIfRepositoryAndExecute command = isInitialized >>= (\i -> if not i
     else command) 
 
 executeCommitCommand :: String -> ExIO ()
-executeCommitCommand msg = checkIfRepositoryAndExecute $ do{
+executeCommitCommand msg = checkIfRepositoryAndExecute (getRepositoryChanges >>= (\ch -> if ch == [] 
+    then lift $ putStrLn "Nothing to commit - working directory clean"
+    else do{
             commit <- createCommit msg;
             hash <- return $ hashObject commit;
             writeCommit hash;
             lift $ putStrLn ("Commit "++hash++ " done.")
-        }
+        }))
 
 executeStatusCommand :: ExIO ()
 executeStatusCommand = checkIfRepositoryAndExecute (getRepositoryChanges >>= printChangesSmoothly)
