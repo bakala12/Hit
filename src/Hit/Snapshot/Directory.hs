@@ -45,3 +45,9 @@ optionalStore store tree = (if store then storeObject tree else return ()) >> re
 
 getTree :: FilePath -> Bool -> ExIO Tree
 getTree path store = listDirectory path >>= (mapM (toDirectoryEntry path store)) >>= return . Tree >>= (optionalStore store)
+
+getTreeFromHash :: Hash -> ExIO Tree
+getTreeFromHash hash = getPathToObject hash >>= restoreTree
+
+getCommitFromHash :: Hash -> ExIO Commit
+getCommitFromHash hash = getPathToObject hash >>= restoreCommit

@@ -8,6 +8,8 @@ import Control.Monad.Trans.Class
 import Hit.Snapshot.Commit
 import Hit.Repository.References
 import Hit.Objects hiding (message)
+import Hit.Commands.Print
+import Hit.Snapshot.Changes
 
 executeInitCommand :: ExIO ()
 executeInitCommand = isInitialized >>= (\b -> if b 
@@ -28,9 +30,10 @@ executeCommitCommand msg = checkIfRepositoryAndExecute $ do{
         }
 
 executeStatusCommand :: ExIO ()
-executeStatusCommand = return ()
+executeStatusCommand = checkIfRepositoryAndExecute (getRepositoryChanges >>= printChangesSmoothly)
 
 executeHitCommand :: HitCommand -> ExIO ()
 executeHitCommand InitCommand = executeInitCommand
 executeHitCommand (CommitCommand message) = executeCommitCommand message
+executeHitCommand StatusCommand = executeStatusCommand
 executeHitCommand _ = lift $ putStrLn "Invalid command"

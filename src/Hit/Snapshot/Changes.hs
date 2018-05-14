@@ -7,13 +7,35 @@ import Hit.Objects
 import Hit.Repository
 import Hit.Snapshot.Directory
 import Hit.Repository.References
+import Hit.Common.File
+import Hit.Common.List
 
+data Change = Modified FilePath | New FilePath | Removed FilePath deriving Eq
+
+instance Show Change where
+    show (Modified p) = "Modified file: "++p
+    show (New p) = "New file: "++p
+    show (Removed p) = "Removed file: "++p
+
+isNew :: Change -> Bool
+isNew (New _) = True
+isNew _ = False
+
+isRemoved :: Change -> Bool
+isRemoved (Removed _) = True
+isRemoved _ = False
+
+isModified :: Change -> Bool
+isModified (Modified _) = True
+isModified _ = False
+
+-- Filtering non changed files
 compareEntries :: (Eq a) => (DirectoryEntry -> a) -> DirectoryEntry -> DirectoryEntry -> Bool
 compareEntries f entry1 entry2 = (f entry1) == (f entry2)
-
+    
 areIdentical :: DirectoryEntry -> DirectoryEntry -> Bool
 areIdentical e1 e2 = (compareEntries entryHash e1 e2) && (compareEntries entryName e1 e2) 
-
+    
 findIdentical :: DirectoryEntry -> [DirectoryEntry] -> (Bool, [DirectoryEntry])
 findIdentical entry [] = (False, [])
 findIdentical entry (d:ds) = if areIdentical entry d 
@@ -21,7 +43,7 @@ findIdentical entry (d:ds) = if areIdentical entry d
     else (recR, d:recL)
     where 
         (recR, recL) = findIdentical entry ds
-
+    
 getNonIdentical :: [DirectoryEntry] -> [DirectoryEntry] -> ([DirectoryEntry], [DirectoryEntry])
 getNonIdentical [] l2 = ([], l2)
 getNonIdentical l1 [] = (l1, [])
@@ -31,8 +53,10 @@ getNonIdentical (x:xs) l2 = if r
     where
         (r, l) = findIdentical x l2
         (l12, l22) = getNonIdentical xs l2
+--End FilteringNonChangedFiles
 
-data Change = Modified DirectoryEntry DirectoryEntry | New DirectoryEntry | Removed DirectoryEntry deriving Show
+--Matching directory entries
+data MatchingEntry = Matching FilePath DirectoryEntry DirectoryEntry | NewEntry FilePath DirectoryEntry | RemovedEntry FilePath DirectoryEntry deriving Show
 
 matchBy :: (Eq a) => (DirectoryEntry -> a) -> DirectoryEntry -> [DirectoryEntry] -> (Maybe DirectoryEntry, [DirectoryEntry])
 matchBy f e list = foldl helper (Nothing, []) list
@@ -43,29 +67,65 @@ matchBy f e list = foldl helper (Nothing, []) list
             then (Just d, list)
             else (Nothing, d:list)
 
-matchChanges :: [DirectoryEntry] -> [DirectoryEntry] -> [Change]
-matchChanges [] lastSaved = map Removed lastSaved
-matchChanges current [] = map New current
-matchChanges (c:cs) lastSaved = case m of 
-    (Just x) -> ((Modified c x):recR)
-    Nothing -> ((New c):recR)
+matchChanges :: FilePath -> [DirectoryEntry] -> [DirectoryEntry] -> [MatchingEntry]
+matchChanges dirPath [] last = map (RemovedEntry dirPath) last
+matchChanges dirPath current [] = map (NewEntry dirPath) current
+matchChanges dirPath (c:cs) last = case m of 
+    (Just x) -> ((Matching dirPath c x):recR)
+    Nothing -> ((NewEntry dirPath c):recR)
     where
-        (m, list) = matchBy entryName c lastSaved
-        recR = matchChanges cs list
+        (m, list) = matchBy entryName c last
+        recR = matchChanges dirPath cs list
 
-compareTrees :: Tree -> Tree -> ExIO [Change]
-compareTrees current lastSaved = return $ matchChanges cur ls
-    where 
-        (cur, ls) = getNonIdentical (entries current) (entries lastSaved)
+getMatchingChanges :: FilePath -> [DirectoryEntry] -> [DirectoryEntry] -> [MatchingEntry]
+getMatchingChanges dirPath current last = matchChanges dirPath c l
+    where
+        (c, l) = getNonIdentical current last
+--End Matching directory entries
 
-getChanges :: ExIO [Change]
-getChanges = do{
+--Converting MatchingEntries to Changes
+getDirectoryChanges :: FilePath -> Hash -> ExIO [Change]
+getDirectoryChanges path lastHash = do{
+    last <- getTreeFromHash lastHash;
+    curr <- getTree path False;
+    compareDirectoryTrees path curr last
+}
+
+convertMatching :: FilePath -> Hash -> ExIO [Change]
+convertMatching path lastHash = (isDirectory path) >>= (\r -> if r 
+    then getDirectoryChanges path lastHash
+    else return [Modified path])
+
+getNewFiles :: FilePath -> ExIO [Change]
+getNewFiles path = listDirectory path >>= concatMapM (convertNew . ((++) (path++"/")))
+
+convertNew :: FilePath -> ExIO [Change]
+convertNew path = do{
+    isDir <- isDirectory path;
+    if isDir
+        then getNewFiles path
+        else return [New path]
+}
+
+convertToChanges :: MatchingEntry -> ExIO [Change]
+convertToChanges (NewEntry path e) = convertNew (path++"/"++(entryName e))
+convertToChanges (RemovedEntry path e) = return $ [Removed (path++"/"++(entryName e))]
+convertToChanges (Matching path current last) = convertMatching (path++"/"++(entryName current)) (entryHash last)
+
+convertChanges :: [MatchingEntry] -> ExIO [Change]
+convertChanges = concatMapM convertToChanges 
+--End Converting MatchingEntries to Changes
+
+compareDirectories :: FilePath -> [DirectoryEntry] -> [DirectoryEntry] -> ExIO [Change]
+compareDirectories dirPath current last = convertChanges $ getMatchingChanges dirPath current last
+
+compareDirectoryTrees :: FilePath -> Tree -> Tree -> ExIO [Change]
+compareDirectoryTrees dirPath currentTree lastSavedTree = compareDirectories dirPath (entries currentTree) (entries lastSavedTree)
+
+getRepositoryChanges :: ExIO [Change]
+getRepositoryChanges = do{
     p <- getRepositoryDirectory;
     current <- getTree p False;
     lastSaved <- getCurrentBranchVersion;
-    lift $ putStrLn "Current:";
-    lift $ putStrLn $ getContent current;
-    lift $ putStrLn "Last saved";
-    lift $ putStrLn $ getContent lastSaved;
-    compareTrees current lastSaved;
+    compareDirectoryTrees p current lastSaved;
 }
