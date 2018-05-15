@@ -7,7 +7,8 @@ module Hit.Common.File (
     isDirectory,
     getDirectoryEntries,
     isExistingFile,
-    createDirectoryIfNotExist
+    createDirectoryIfNotExist,
+    removeExistingFile
 ) where
     
 import Control.Monad.Trans.Class
@@ -17,11 +18,6 @@ import System.IO.Error
 import System.Directory
 import Hit.Common.Data
 import qualified System.IO.Strict as IOS
--- import qualified Data.ByteString.Lazy.Char8 as B
--- import Text.Printf (printf)
--- import qualified Data.String.Utils as U
--- import qualified Data.Time.Clock as T
--- import Data.Time.Format
 
 setError :: IOError -> IO (Either String a)
 setError e = return $ Left $ show e
@@ -60,3 +56,6 @@ getDirectoryEntries path = secureFileOperation $ listDirectory path
 
 isExistingFile :: FilePath -> ExIO Bool
 isExistingFile path = secureFileOperation $ doesFileExist path
+
+removeExistingFile :: FilePath -> ExIO ()
+removeExistingFile path = secureFileOperation $ removeFile path

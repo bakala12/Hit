@@ -8,5 +8,6 @@ data HitCommand = InitCommand |
                   CommitCommand CommitMessage | 
                   StatusCommand |
                   NewBranchCommand Branch | 
+                  RemoveBranchCommand Branch | 
                   InvalidCommand
     deriving Show

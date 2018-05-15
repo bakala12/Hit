@@ -56,3 +56,17 @@ createBranch branch = doesBranchExist branch >>= (\r -> if r
         createNewFile ref branch last;
         return True
     })
+
+isCurrentBranch :: Branch -> ExIO Bool
+isCurrentBranch branch = getCurrentBranch >>= return . (branch ==)
+
+removeBranch :: Branch -> ExIO Bool
+removeBranch branch = doesBranchExist branch >>= (\r -> if r
+    then do{
+        isCurr <- isCurrentBranch branch;
+        path <- getPathToRefs;
+        if isCurr
+            then throwE "Cannot remove current branch"
+            else removeExistingFile (path++branch) >> return True
+    }
+    else return False)

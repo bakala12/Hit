@@ -14,6 +14,7 @@ data CommandType = InitCommandType |
                    CommitCommandType |
                    StatusCommandType |
                    NewBranchCommandType |
+                   RemoveBranchCommandType |
                    InvalidCommandType
     deriving Show
 
@@ -22,6 +23,7 @@ readCommandType "init" = InitCommandType
 readCommandType "status" = StatusCommandType
 readCommandType "commit" = CommitCommandType
 readCommandType "newbranch" = NewBranchCommandType
+readCommandType "removebranch" = RemoveBranchCommandType
 readCommandType _ = InvalidCommandType
 
 parseCommandTypeHelper :: GenParser Char st String
@@ -30,7 +32,7 @@ parseCommandTypeHelper = string "init" <|>
                          string "commit" <|>
                          string "checkout" <|>
                          string "newbranch" <|>
-                         string "deletebranch" <|>
+                         string "removebranch" <|>
                          string "merge" <|>
                          string "diff" <|>
                          string "log" <|>
@@ -55,6 +57,7 @@ parseParameters InitCommandType = return InitCommand
 parseParameters StatusCommandType = return StatusCommand
 parseParameters CommitCommandType = space >> stringParam >>= return . CommitCommand
 parseParameters NewBranchCommandType = space >> stringParamWithoutQuotes >>= return . NewBranchCommand
+parseParameters RemoveBranchCommandType = space >> stringParamWithoutQuotes >>= return . RemoveBranchCommand
 parseParameters _ = return InvalidCommand
 
 commandParser :: GenParser Char () HitCommand
