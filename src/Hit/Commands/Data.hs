@@ -6,5 +6,7 @@ import Control.Monad.Trans.Class
 
 data HitCommand = InitCommand |
                   CommitCommand CommitMessage | 
-                  StatusCommand
+                  StatusCommand |
+                  NewBranchCommand Branch | 
+                  InvalidCommand
     deriving Show

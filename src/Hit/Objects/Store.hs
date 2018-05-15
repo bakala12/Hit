@@ -14,7 +14,7 @@ import Control.Applicative
 import qualified Text.Parsec as TP
 
 splitFirstTwoAndCreate :: FilePath -> Hash -> ExIO (String)
-splitFirstTwoAndCreate path (x:y:xs) = createDirectoryIfNotExist (path++['/',x,y]) >> return (path++['/',x,y, '/']++xs)
+splitFirstTwoAndCreate path (x:y:xs) = createDirectoryIfNotExist (path++[x,y]) >> return (path++[x,y, '/']++xs)
 splitFirstTwoAndCreate _ _ = throwE "Incorrect hash - cannot create path"
 
 getPathToObject :: Hash -> ExIO FilePath

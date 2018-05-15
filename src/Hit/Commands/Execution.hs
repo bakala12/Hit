@@ -34,8 +34,14 @@ executeCommitCommand msg = checkIfRepositoryAndExecute (getRepositoryChanges >>=
 executeStatusCommand :: ExIO ()
 executeStatusCommand = checkIfRepositoryAndExecute (getRepositoryChanges >>= printChangesSmoothly)
 
+executeNewBranchCommand :: Branch -> ExIO ()
+executeNewBranchCommand branch = checkIfRepositoryAndExecute $ (createBranch branch >>= (\b -> if b 
+    then lift $ putStrLn ("Branch "++branch++" successfully created")
+    else lift $ putStrLn ("Branch "++branch++" already exist"))) 
+
 executeHitCommand :: HitCommand -> ExIO ()
 executeHitCommand InitCommand = executeInitCommand
 executeHitCommand (CommitCommand message) = executeCommitCommand message
 executeHitCommand StatusCommand = executeStatusCommand
+executeHitCommand (NewBranchCommand branch) = executeNewBranchCommand branch
 executeHitCommand _ = lift $ putStrLn "Invalid command"

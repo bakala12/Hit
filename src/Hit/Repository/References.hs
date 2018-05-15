@@ -10,23 +10,23 @@ import Hit.Objects.Store
 import Control.Applicative
 
 getPathToRefs :: ExIO FilePath
-getPathToRefs = getHitDirectoryPath >>= return . (++"/refs")
+getPathToRefs = getHitDirectoryPath >>= return . (++"/refs/")
 
 getCurrentBranch :: ExIO Branch
 getCurrentBranch = getHitDirectoryPath >>= return . (++"/head") >>= readWholeFile
 
 getBranchCommitHash :: Branch -> ExIO Hash
-getBranchCommitHash branch = getPathToRefs >>= return . (++("/"++ branch)) >>= readWholeFile
+getBranchCommitHash branch = getPathToRefs >>= return . (++ branch) >>= readWholeFile
 
 getTreeVersion :: Hash -> ExIO Tree
-getTreeVersion hash = getPathToObjects >>= return . (++("/"++hash)) >>= restoreTree
+getTreeVersion hash = getPathToObjects >>= return . (++hash) >>= restoreTree
 
 splitPath :: Hash -> FilePath
 splitPath (x:y:xs) = (x:y:'/':xs) 
 splitPath l = l
 
 getVersion :: Hash -> ExIO Tree
-getVersion commitHash = getPathToObjects >>= return . (++("/"++ (splitPath commitHash))) >>= restoreCommit
+getVersion commitHash = getPathToObjects >>= return . (++(splitPath commitHash)) >>= restoreCommit
     >>= return . tree >>= getTreeVersion . splitPath
 
 getCurrentBranchVersion :: ExIO Tree
@@ -37,3 +37,22 @@ writeCommit hash = do {
     branch <- getCurrentBranch; 
     getPathToRefs >>= return . (++("/"++ branch)) >>= (\p -> writeWholeFile p hash) 
 }
+
+listBranches :: ExIO [Branch]
+listBranches = getPathToRefs >>= getDirectoryEntries
+
+doesBranchExist :: Branch -> ExIO Bool
+doesBranchExist branch = listBranches >>= return . (elem branch)
+
+getLastCommitHash :: ExIO Hash
+getLastCommitHash = getCurrentBranch >>= getBranchCommitHash
+
+createBranch :: Branch -> ExIO Bool
+createBranch branch = doesBranchExist branch >>= (\r -> if r 
+    then return False
+    else do{
+        ref <- getPathToRefs;
+        last <- getLastCommitHash;
+        createNewFile ref branch last;
+        return True
+    })
