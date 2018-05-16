@@ -9,3 +9,7 @@ concatMapM f (x:xs) = do{
     t <- concatMapM f xs;
     return (h++t)
 }
+
+findFirstMatching :: (b -> a -> Bool) -> b -> [a] -> Maybe a
+findFirstMatching _ _ [] = Nothing
+findFirstMatching f b (x:xs) = if f b x then (Just x) else findFirstMatching f b xs

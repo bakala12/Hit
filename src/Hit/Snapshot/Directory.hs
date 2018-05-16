@@ -9,6 +9,8 @@ import Hit.Common.Permissions
 import Control.Monad
 import Hit.Repository.Ignore
 import Hit.Objects.Store
+import Hit.Common.List
+import Hit.Repository
 
 getBlob :: FilePath -> ExIO Blob
 getBlob path = (readWholeFile path) >>= return . Blob
@@ -51,3 +53,12 @@ getTreeFromHash hash = getPathToObject hash >>= restoreTree
 
 getCommitFromHash :: Hash -> ExIO Commit
 getCommitFromHash hash = getPathToObject hash >>= restoreCommit
+
+findInTreeHelper :: [FilePath] -> Hash -> ExIO Hash
+findInTreeHelper [] hash = return hash
+findInTreeHelper (x:xs) hash = getTreeFromHash hash >>= return . (findFirstMatching (\b a -> ((entryName a)++"/")==b) x) . entries >>= (\r -> (lift $ putStrLn $ show r) >> return r) >>= (\r -> case r of
+    Nothing -> throwE ("Cannot find file "++x)
+    (Just e) -> findInTreeHelper xs (entryHash e)) 
+
+findInTree :: FilePath -> Tree -> ExIO Blob
+findInTree path tree = getRepositoryDirectory >>= (\p -> return $ splitAndGetRest p path) >>= (\l -> findInTreeHelper l (hashObject tree)) >>= getPathToObject >>= restoreBlob

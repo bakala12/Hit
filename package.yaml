@@ -30,6 +30,7 @@ dependencies:
 - time #timestamp
 - MissingH #string utils
 - strict #strict IO
+- filepath
 
 library:
   source-dirs: src

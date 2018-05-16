@@ -8,7 +8,8 @@ module Hit.Common.File (
     getDirectoryEntries,
     isExistingFile,
     createDirectoryIfNotExist,
-    removeExistingFile
+    removeExistingFile,
+    splitAndGetRest
 ) where
     
 import Control.Monad.Trans.Class
@@ -18,6 +19,7 @@ import System.IO.Error
 import System.Directory
 import Hit.Common.Data
 import qualified System.IO.Strict as IOS
+import System.FilePath
 
 setError :: IOError -> IO (Either String a)
 setError e = return $ Left $ show e
@@ -59,3 +61,11 @@ isExistingFile path = secureFileOperation $ doesFileExist path
 
 removeExistingFile :: FilePath -> ExIO ()
 removeExistingFile path = secureFileOperation $ removeFile path
+
+splitAndGetRest :: FilePath -> FilePath -> [FilePath]
+splitAndGetRest dirPath path = removeFirst (splitPath dirPath) (splitPath path) 
+    where
+        removeFirst :: [FilePath] -> [FilePath] -> [FilePath]
+        removeFirst l [] = []
+        removeFirst (x:xs) l@(y:ys) = if x == y || (x++"/") == y then removeFirst xs ys else l
+        removeFirst [] x = x 
