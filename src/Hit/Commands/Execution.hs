@@ -10,6 +10,7 @@ import Hit.Repository.References
 import Hit.Objects hiding (message)
 import Hit.Commands.Print
 import Hit.Snapshot.Changes
+import Hit.Snapshot.Checkout 
 
 executeInitCommand :: ExIO ()
 executeInitCommand = isInitialized >>= (\b -> if b 
@@ -43,6 +44,9 @@ executeRemoveBranchCommand :: Branch -> ExIO ()
 executeRemoveBranchCommand branch = checkIfRepositoryAndExecute (removeBranch branch >>= (\b -> if b
     then lift $ putStrLn ("Branch "++branch++" successfully removed.")
     else lift $ putStrLn ("Branch "++branch++" does not exist"))) 
+
+executeBranchCheckoutCommand :: Branch -> ExIO ()
+executeBranchCheckoutCommand branch = checkIfRepositoryAndExecute (changeBranch branch >> (lift $ putStrLn "Successfully changed branch"))
 
 executeHitCommand :: HitCommand -> ExIO ()
 executeHitCommand InitCommand = executeInitCommand

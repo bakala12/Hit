@@ -70,3 +70,6 @@ removeBranch branch = doesBranchExist branch >>= (\r -> if r
             else removeExistingFile (path++branch) >> return True
     }
     else return False)
+
+changeCurrentBranch :: Branch -> ExIO ()
+changeCurrentBranch branch = getHitDirectoryPath >>= return . (++"head") >>= (\p -> writeWholeFile p branch)

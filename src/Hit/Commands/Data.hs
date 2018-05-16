@@ -9,5 +9,6 @@ data HitCommand = InitCommand |
                   StatusCommand |
                   NewBranchCommand Branch | 
                   RemoveBranchCommand Branch | 
+                  CheckoutBranchCommand Branch |
                   InvalidCommand
     deriving Show

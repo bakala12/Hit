@@ -57,14 +57,9 @@ getCommitFromHash hash = getPathToObject hash >>= restoreCommit
 findInTreeHelper :: [FilePath] -> Hash -> ExIO Hash
 findInTreeHelper [] hash = return hash
 findInTreeHelper (x:xs) hash = do{
-    --lift $ putStrLn x;
     tree <- getTreeFromHash hash;
-    --lift $ putStrLn ("Hash: "++hash);
-    --lift $ putStrLn ("Found: "++(hashObject tree));
     ent <- return $ entries tree;
     m <- return $ findFirstMatching (\b a -> (((entryName a)++"/")==b) || (entryName a)==b) x ent;
-    --lift $ putStrLn $ show $ map (\e -> ((entryName e)++" "++(entryHash e))) ent;
-    --lift $ putStrLn ("Matching: "++ (show m));
     case m of
         Nothing -> throwE ("Cannot find "++x)
         (Just x) -> findInTreeHelper xs (entryHash x)

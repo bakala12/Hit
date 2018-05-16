@@ -15,7 +15,7 @@ applyRemoveFile :: FilePath -> ExIO ()
 applyRemoveFile path = removeExistingFile path
 
 applyNewFile :: Tree -> FilePath -> ExIO ()
-applyNewFile tree path = return ()
+applyNewFile tree path = findInTree path tree >>= return . fileContent >>= createFileWithParentDirectories path
 
 applyChange :: Tree -> Change -> ExIO ()
 applyChange _ (New path) = applyRemoveFile path --file is new -> remove it
@@ -38,3 +38,8 @@ makeHashCheckout hash = getVersion hash >>= makeTreeCheckout
 
 makeBranchCheckout :: Branch -> ExIO ()
 makeBranchCheckout branch = getBranchCommitHash branch>>= makeHashCheckout
+
+changeBranch :: Branch -> ExIO ()
+changeBranch branch = doesBranchExist branch >>= (\r -> if r then return () else throwE "Branch does not exist") >> isCurrentBranch branch >>= (\r -> if r 
+    then throwE "Cannot checkout to current branch"
+    else makeBranchCheckout branch >> changeCurrentBranch branch)

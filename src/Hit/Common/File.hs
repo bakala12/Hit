@@ -9,7 +9,8 @@ module Hit.Common.File (
     isExistingFile,
     createDirectoryIfNotExist,
     removeExistingFile,
-    splitAndGetRest
+    splitAndGetRest,
+    createFileWithParentDirectories
 ) where
     
 import Control.Monad.Trans.Class
@@ -69,3 +70,8 @@ splitAndGetRest dirPath path = removeFirst (splitPath dirPath) (splitPath path)
         removeFirst l [] = []
         removeFirst (x:xs) l@(y:ys) = if x == y || (x++"/") == y then removeFirst xs ys else l
         removeFirst [] x = x 
+
+createFileWithParentDirectories :: FilePath -> String -> ExIO ()
+createFileWithParentDirectories path content = secureFileOperation (createDirectoryIfMissing True dir >> writeFile path content)
+    where
+        dir = takeDirectory path
