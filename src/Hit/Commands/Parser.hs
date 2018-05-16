@@ -28,17 +28,20 @@ readCommandType "removebranch" = RemoveBranchCommandType
 readCommandType "checkout" = CheckoutBranchCommandType
 readCommandType _ = InvalidCommandType
 
+stringT :: String -> GenParser Char st String
+stringT str = try $ string str
+
 parseCommandTypeHelper :: GenParser Char st String
-parseCommandTypeHelper = string "init" <|>
-                         string "status" <|>
-                         string "commit" <|>
-                         string "checkout" <|>
-                         string "newbranch" <|>
-                         string "removebranch" <|>
-                         string "merge" <|>
-                         string "diff" <|>
-                         string "log" <|>
-                         string "history"
+parseCommandTypeHelper = stringT "init" <|>
+                         stringT "status" <|>
+                         stringT "commit"<|>
+                         stringT "checkout" <|>
+                         stringT "newbranch" <|>
+                         stringT "removebranch" <|>
+                         stringT "merge" <|>
+                         stringT "diff" <|>
+                         stringT "log" <|>
+                         stringT "history"
 
 parseCommandType :: GenParser Char st CommandType
 parseCommandType = parseCommandTypeHelper >>= return . readCommandType

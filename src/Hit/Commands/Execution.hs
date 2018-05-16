@@ -46,7 +46,7 @@ executeRemoveBranchCommand branch = checkIfRepositoryAndExecute (removeBranch br
     else lift $ putStrLn ("Branch "++branch++" does not exist"))) 
 
 executeBranchCheckoutCommand :: Branch -> ExIO ()
-executeBranchCheckoutCommand branch = checkIfRepositoryAndExecute (changeBranch branch >> (lift $ putStrLn "Successfully changed branch"))
+executeBranchCheckoutCommand branch = checkIfRepositoryAndExecute (changeBranch branch >> (lift $ putStrLn ("Successfully changed branch to "++ branch)))
 
 executeHitCommand :: HitCommand -> ExIO ()
 executeHitCommand InitCommand = executeInitCommand
@@ -54,4 +54,5 @@ executeHitCommand (CommitCommand message) = executeCommitCommand message
 executeHitCommand StatusCommand = executeStatusCommand
 executeHitCommand (NewBranchCommand branch) = executeNewBranchCommand branch
 executeHitCommand (RemoveBranchCommand branch) = executeRemoveBranchCommand branch
+executeHitCommand (CheckoutBranchCommand branch) = executeBranchCheckoutCommand branch
 executeHitCommand _ = lift $ putStrLn "Invalid command"

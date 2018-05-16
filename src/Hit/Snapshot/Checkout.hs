@@ -27,7 +27,6 @@ makeChangesCheckout changes tree = foldM (\acc c -> applyChange tree c) () chang
 
 makeTreeCheckout :: Tree -> ExIO ()
 makeTreeCheckout tree = do{
-    lift $ putStrLn "Wchodze";
     path <- getRepositoryDirectory;
     curr <- getTree path False;
     ch <- compareDirectoryTrees path curr tree;
