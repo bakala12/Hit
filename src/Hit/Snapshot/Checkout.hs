@@ -27,6 +27,7 @@ makeChangesCheckout changes tree = foldM (\acc c -> applyChange tree c) () chang
 
 makeTreeCheckout :: Tree -> ExIO ()
 makeTreeCheckout tree = do{
+    lift $ putStrLn "Wchodze";
     path <- getRepositoryDirectory;
     curr <- getTree path False;
     ch <- compareDirectoryTrees path curr tree;
@@ -37,7 +38,7 @@ makeHashCheckout :: Hash -> ExIO ()
 makeHashCheckout hash = getVersion hash >>= makeTreeCheckout
 
 makeBranchCheckout :: Branch -> ExIO ()
-makeBranchCheckout branch = getBranchCommitHash branch>>= makeHashCheckout
+makeBranchCheckout branch = getBranchCommitHash branch >>= makeHashCheckout
 
 changeBranch :: Branch -> ExIO ()
 changeBranch branch = doesBranchExist branch >>= (\r -> if r then return () else throwE "Branch does not exist") >> isCurrentBranch branch >>= (\r -> if r 

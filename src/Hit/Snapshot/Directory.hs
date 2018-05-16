@@ -60,9 +60,11 @@ findInTreeHelper (x:xs) hash = do{
     tree <- getTreeFromHash hash;
     ent <- return $ entries tree;
     m <- return $ findFirstMatching (\b a -> (((entryName a)++"/")==b) || (entryName a)==b) x ent;
+    lift $ putStrLn ("Matching: "++(show m));
     case m of
         Nothing -> throwE ("Cannot find "++x)
         (Just x) -> findInTreeHelper xs (entryHash x)
 }
+
 findInTree :: FilePath -> Tree -> ExIO Blob
-findInTree path tree = getRepositoryDirectory >>= (\p -> return $ splitAndGetRest p path) >>= (\l -> findInTreeHelper l (hashObject tree)) >>= getPathToObject >>= restoreBlob
+findInTree path tree = getRepositoryDirectory >>= (\p -> return $ splitAndGetRest p path) >>= (\l -> findInTreeHelper l (hashObject tree)) >>= getPathToObject >>= (\p -> (lift $ putStrLn p) >> return p) >>= restoreBlob

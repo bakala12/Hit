@@ -26,7 +26,7 @@ splitPath (x:y:xs) = (x:y:'/':xs)
 splitPath l = l
 
 getVersion :: Hash -> ExIO Tree
-getVersion commitHash = getPathToObjects >>= return . (++(splitPath commitHash)) >>= restoreCommit
+getVersion commitHash = if commitHash == "" then return $ Tree { entries = []} else getPathToObjects >>= return . (++(splitPath commitHash)) >>= restoreCommit
     >>= return . tree >>= getTreeVersion . splitPath
 
 getCurrentBranchVersion :: ExIO Tree
