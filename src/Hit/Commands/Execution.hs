@@ -11,6 +11,7 @@ import Hit.Objects hiding (message)
 import Hit.Commands.Print
 import Hit.Snapshot.Changes
 import Hit.Snapshot.Checkout 
+import Hit.Repository.Config
 
 executeInitCommand :: ExIO ()
 executeInitCommand = isInitialized >>= (\b -> if b 
@@ -48,6 +49,17 @@ executeRemoveBranchCommand branch = checkIfRepositoryAndExecute (removeBranch br
 executeBranchCheckoutCommand :: Branch -> ExIO ()
 executeBranchCheckoutCommand branch = checkIfRepositoryAndExecute (changeBranch branch >> (lift $ putStrLn ("Successfully changed branch to "++ branch)))
 
+executeConfigCommand :: String -> String -> ExIO ()
+executeConfigCommand key value = checkIfRepositoryAndExecute (putToConfig key value >> (lift $ putStrLn "Successfully added to config"))
+
+executeListBranchCommand :: ExIO ()
+executeListBranchCommand = checkIfRepositoryAndExecute (listBranches >>= printEachInLine)
+
+executeGetConfigCommand :: String -> ExIO ()
+executeGetConfigCommand key = checkIfRepositoryAndExecute (getFromConfig key >>= (\c -> case c of
+    Nothing -> lift $ putStrLn ("Key "++key++" not in config")
+    (Just x) -> lift $ putStrLn x))
+
 executeHitCommand :: HitCommand -> ExIO ()
 executeHitCommand InitCommand = executeInitCommand
 executeHitCommand (CommitCommand message) = executeCommitCommand message
@@ -55,4 +67,7 @@ executeHitCommand StatusCommand = executeStatusCommand
 executeHitCommand (NewBranchCommand branch) = executeNewBranchCommand branch
 executeHitCommand (RemoveBranchCommand branch) = executeRemoveBranchCommand branch
 executeHitCommand (CheckoutBranchCommand branch) = executeBranchCheckoutCommand branch
+executeHitCommand (ConfigCommand key value) = executeConfigCommand key value
+executeHitCommand ListBranchCommand = executeListBranchCommand
+executeHitCommand (GetConfigCommand key) = executeGetConfigCommand key
 executeHitCommand _ = lift $ putStrLn "Invalid command"

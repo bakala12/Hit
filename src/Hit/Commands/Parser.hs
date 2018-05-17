@@ -16,6 +16,9 @@ data CommandType = InitCommandType |
                    NewBranchCommandType |
                    RemoveBranchCommandType |
                    CheckoutBranchCommandType |
+                   ConfigCommandType |
+                   ListBranchCommandType |
+                   GetConfigCommandType |
                    InvalidCommandType
     deriving Show
 
@@ -26,6 +29,9 @@ readCommandType "commit" = CommitCommandType
 readCommandType "newbranch" = NewBranchCommandType
 readCommandType "removebranch" = RemoveBranchCommandType
 readCommandType "checkout" = CheckoutBranchCommandType
+readCommandType "config" = ConfigCommandType
+readCommandType "listbranch" = ListBranchCommandType
+readCommandType "getconfig" = GetConfigCommandType
 readCommandType _ = InvalidCommandType
 
 stringT :: String -> GenParser Char st String
@@ -41,7 +47,10 @@ parseCommandTypeHelper = stringT "init" <|>
                          stringT "merge" <|>
                          stringT "diff" <|>
                          stringT "log" <|>
-                         stringT "history"
+                         stringT "history" <|>
+                         stringT "config" <|>
+                         stringT "listbranch" <|>
+                         stringT "getconfig"
 
 parseCommandType :: GenParser Char st CommandType
 parseCommandType = parseCommandTypeHelper >>= return . readCommandType
@@ -64,6 +73,15 @@ parseParameters CommitCommandType = space >> stringParam >>= return . CommitComm
 parseParameters NewBranchCommandType = space >> stringParamWithoutQuotes >>= return . NewBranchCommand
 parseParameters RemoveBranchCommandType = space >> stringParamWithoutQuotes >>= return . RemoveBranchCommand
 parseParameters CheckoutBranchCommandType = space >> stringParamWithoutQuotes >>= return . CheckoutBranchCommand
+parseParameters ConfigCommandType = do{
+    space;
+    key <- stringParam;
+    space;
+    value <- stringParam;
+    return $ ConfigCommand key value
+}
+parseParameters ListBranchCommandType = return ListBranchCommand
+parseParameters GetConfigCommandType = space >> stringParam >>= return . GetConfigCommand 
 parseParameters _ = return InvalidCommand
 
 commandParser :: GenParser Char () HitCommand

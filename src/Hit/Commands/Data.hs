@@ -10,5 +10,8 @@ data HitCommand = InitCommand |
                   NewBranchCommand Branch | 
                   RemoveBranchCommand Branch | 
                   CheckoutBranchCommand Branch |
+                  ConfigCommand String String |
+                  ListBranchCommand |
+                  GetConfigCommand String |
                   InvalidCommand
     deriving Show

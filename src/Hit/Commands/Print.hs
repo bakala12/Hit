@@ -24,3 +24,7 @@ printChangesSmoothlyHelper ch = printChanges "Modified: " isModified ch >> print
 
 printChangesSmoothly :: [Change] -> ExIO ()
 printChangesSmoothly list = getCurrentBranch >>= (\b -> (lift $ putStrLn ("On branch "++b++":"))) >> printChangesSmoothlyHelper list
+
+printEachInLine :: [String] -> ExIO ()
+printEachInLine [] = return ()
+printEachInLine (x:xs) = (lift $ putStrLn x) >> printEachInLine xs
