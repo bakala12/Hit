@@ -117,3 +117,17 @@ restoreTree path = restoreObject path (objectHeaderParser "tree" >> treeParser)
     
 restoreCommit :: FilePath -> ExIO Commit
 restoreCommit path = restoreObject path (objectHeaderParser "commit" >> commitParser)
+
+objectTypeParser :: GenParser Char st (Maybe HitObjectType)
+objectTypeParser = readHitObjectType <$> (P.many (P.noneOf " \0\n"))
+
+getHitObjectType :: FilePath -> ExIO HitObjectType
+getHitObjectType path = (secureFileOperation $ B.readFile path) >>= return . decompressContent >>= (\cont -> do{
+    pr <- return $ parse objectTypeParser "" cont;
+    resM <- (case pr of
+        (Left e) -> throwE "Error in parsing file"
+        (Right x) -> return x);
+    case resM of
+        Nothing -> throwE "Error getting object type"
+        (Just x) -> return x 
+})
