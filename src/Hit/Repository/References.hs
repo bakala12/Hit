@@ -73,3 +73,9 @@ removeBranch branch = doesBranchExist branch >>= (\r -> if r
 
 changeCurrentBranch :: Branch -> ExIO ()
 changeCurrentBranch branch = getHitDirectoryPath >>= return . (++"head") >>= (\p -> writeWholeFile p branch)
+
+getTreeFromHash :: Hash -> ExIO Tree
+getTreeFromHash hash = getPathToObject hash >>= restoreTree
+
+getCommitFromHash :: Hash -> ExIO Commit
+getCommitFromHash hash = getPathToObject hash >>= restoreCommit

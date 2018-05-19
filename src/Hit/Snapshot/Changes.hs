@@ -9,6 +9,7 @@ import Hit.Snapshot.Directory
 import Hit.Repository.References
 import Hit.Common.File
 import Hit.Common.List
+import Hit.Objects.Store
 
 data Change = Modified FilePath | New FilePath | Removed FilePath deriving Eq
 
@@ -107,9 +108,31 @@ convertNew path = do{
         else return [New path]
 }
 
+getRemovedFilesTree :: FilePath -> Tree -> ExIO [Change]
+getRemovedFilesTree path tree = (return $ entries tree) >>= concatMapM (\e -> convertRemoved (path++"/"++(entryName e)) e)
+
+getRemovedFiles :: FilePath -> DirectoryEntry -> ExIO [Change]
+getRemovedFiles path e = do{
+    hash <- return $ entryHash e;
+    objP <- getPathToObject hash;
+    typ <- getHitObjectType objP;
+    case typ of
+        CommitType -> throwE "Invalid object type - commit"
+        BlobType -> return [Removed path]
+        TreeType -> restoreTree objP >>= getRemovedFilesTree path
+}
+
+convertRemoved :: FilePath -> DirectoryEntry -> ExIO [Change]
+convertRemoved path e = do{
+    isDir <- return ((permissions e) == "040000");
+    if isDir
+        then getRemovedFiles path e
+        else return [Removed path]
+}
+
 convertToChanges :: MatchingEntry -> ExIO [Change]
 convertToChanges (NewEntry path e) = convertNew (path++"/"++(entryName e))
-convertToChanges (RemovedEntry path e) = return $ [Removed (path++"/"++(entryName e))]
+convertToChanges (RemovedEntry path e) = convertRemoved (path++"/"++(entryName e)) e
 convertToChanges (Matching path current last) = convertMatching (path++"/"++(entryName current)) (entryHash last)
 
 convertChanges :: [MatchingEntry] -> ExIO [Change]

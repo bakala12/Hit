@@ -47,23 +47,3 @@ optionalStore store tree = (if store then storeObject tree else return ()) >> re
 
 getTree :: FilePath -> Bool -> ExIO Tree
 getTree path store = listDirectory path >>= (mapM (toDirectoryEntry path store)) >>= return . Tree >>= (optionalStore store)
-
-getTreeFromHash :: Hash -> ExIO Tree
-getTreeFromHash hash = getPathToObject hash >>= restoreTree
-
-getCommitFromHash :: Hash -> ExIO Commit
-getCommitFromHash hash = getPathToObject hash >>= restoreCommit
-
-findInTreeHelper :: [FilePath] -> Hash -> ExIO Hash
-findInTreeHelper [] hash = return hash
-findInTreeHelper (x:xs) hash = do{
-    tree <- getTreeFromHash hash;
-    ent <- return $ entries tree;
-    m <- return $ findFirstMatching (\b a -> (((entryName a)++"/")==b) || (entryName a)==b) x ent;
-    case m of
-        Nothing -> throwE ("Cannot find "++x)
-        (Just x) -> findInTreeHelper xs (entryHash x)
-}
-
-findInTree :: FilePath -> Tree -> ExIO Blob
-findInTree path tree = getRepositoryDirectory >>= (\p -> return $ splitAndGetRest p path) >>= (\l -> findInTreeHelper l (hashObject tree)) >>= getPathToObject >>= restoreBlob

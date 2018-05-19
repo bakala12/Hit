@@ -10,7 +10,8 @@ module Hit.Common.File (
     createDirectoryIfNotExist,
     removeExistingFile,
     splitAndGetRest,
-    createFileWithParentDirectories
+    createFileWithParentDirectories,
+    removeIfEmptyDirectory
 ) where
     
 import Control.Monad.Trans.Class
@@ -75,3 +76,8 @@ createFileWithParentDirectories :: FilePath -> String -> ExIO ()
 createFileWithParentDirectories path content = secureFileOperation (createDirectoryIfMissing True dir >> writeFile path content)
     where
         dir = takeDirectory path
+
+removeIfEmptyDirectory :: FilePath -> ExIO Bool
+removeIfEmptyDirectory path = secureFileOperation (listDirectory path >>= return . length >>= (\l -> if l == 0 
+    then removeDirectory path >> return True
+    else return False))
