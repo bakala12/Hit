@@ -7,13 +7,19 @@ import Hit.Commands.Execution
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
 import System.IO
+import Hit.Repository.References
+import Hit.Repository
 
-putPrompt :: String -> IO ()
-putPrompt prompt = putStr prompt >> hFlush stdout
+putPrompt :: String -> ExIO String
+putPrompt prompt = do{
+    rep <- getRepositoryDirectory;
+    br <- catchE (getCurrentBranch >>= return . ("("++) . (++")")) (const return "");
+    return (rep++" "++br++" "++prompt);
+}
 
 executeIfNoExit :: String -> ExIO Bool
 executeIfNoExit "exit" = lift $ return False
 executeIfNoExit str = (parseHitCommand str) >>= executeHitCommand >> return True
 
 executeNextCommand :: ExIO Bool
-executeNextCommand = lift (putPrompt ">" >> getLine) >>= executeIfNoExit
+executeNextCommand = putPrompt ">" >>= lift . putStr >> (lift $ hFlush stdout) >> (lift $ getLine) >>= executeIfNoExit
