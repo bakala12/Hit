@@ -13,7 +13,7 @@ import Hit.Repository
 putPrompt :: String -> ExIO String
 putPrompt prompt = do{
     rep <- getRepositoryDirectory;
-    br <- catchE (getCurrentBranch >>= return . ("("++) . (++")")) (const return "");
+    br <- catchE (getCurrentBranch >>= return . ("("++) . (++")")) (const $ return "");
     return (rep++" "++br++" "++prompt);
 }
 

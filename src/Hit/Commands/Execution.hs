@@ -13,6 +13,7 @@ import Hit.Snapshot.Changes
 import Hit.Snapshot.Checkout 
 import Hit.Repository.Config
 import Hit.Commands.Help
+import Hit.Repository.Log
 
 executeInitCommand :: ExIO ()
 executeInitCommand = isInitialized >>= (\b -> if b 
@@ -67,6 +68,9 @@ executeListCommandsCommand = return getAvailableCommands >>= (lift . putStrLn)
 executeHelpCommand :: String -> ExIO ()
 executeHelpCommand commandName = (return $ getHelpForKeyWord commandName) >>= (lift . putStrLn)
 
+executeLogCommand :: Int -> ExIO ()
+executeLogCommand commitNum = checkIfRepositoryAndExecute (getLog commitNum >>= (mapM (return .show)) >>= printEachInLine)
+
 executeHitCommand :: HitCommand -> ExIO ()
 executeHitCommand InitCommand = executeInitCommand
 executeHitCommand (CommitCommand message) = executeCommitCommand message
@@ -79,4 +83,5 @@ executeHitCommand ListBranchCommand = executeListBranchCommand
 executeHitCommand (GetConfigCommand key) = executeGetConfigCommand key
 executeHitCommand ListCommandsCommand = executeListCommandsCommand
 executeHitCommand (HelpCommand commandName) = executeHelpCommand commandName
+executeHitCommand (LogCommand commitNum) = executeLogCommand commitNum
 executeHitCommand _ = lift $ putStrLn "Invalid command"

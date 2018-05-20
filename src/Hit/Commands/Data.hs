@@ -16,6 +16,7 @@ data HitCommandType = InitCommandType |
                    GetConfigCommandType |
                    ListCommandsCommandType |
                    HelpCommandType |
+                   LogCommandType |
                    InvalidCommandType
     deriving Show
 
@@ -31,7 +32,8 @@ keywordToCommandTypeMap = M.fromList [
     ("listbranch", ListBranchCommandType),
     ("getconfig", GetConfigCommandType),
     ("listcommands", ListCommandsCommandType),
-    ("help", HelpCommandType)]
+    ("help", HelpCommandType),
+    ("log", LogCommandType)]
 
 readCommandType :: String -> HitCommandType
 readCommandType str = M.findWithDefault InvalidCommandType str keywordToCommandTypeMap
@@ -47,6 +49,7 @@ data HitCommand = InitCommand |
                   GetConfigCommand String |
                   ListCommandsCommand |
                   HelpCommand String |
+                  LogCommand Int |
                   InvalidCommand
     deriving Show
 
@@ -56,7 +59,8 @@ parameterDefinitions = M.fromList [
     ("branch", "name of branch"),
     ("configKey", "configuration key"),
     ("configValue", "configuration value"),
-    ("commandName", "name of hit command")]
+    ("commandName", "name of hit command"),
+    ("commitNumbers", "number of commits in the history")]
         
 getParametersForCommand :: HitCommandType -> [String]
 getParametersForCommand CommitCommandType = ["commitMessage"]
@@ -66,6 +70,7 @@ getParametersForCommand CheckoutBranchCommandType = ["branch"]
 getParametersForCommand GetConfigCommandType = ["configKey"]
 getParametersForCommand SetConfigCommandType = ["configKey", "configValue"]
 getParametersForCommand HelpCommandType = ["commandName"]
+getParametersForCommand LogCommandType = ["commitNumbers"]
 getParametersForCommand _ = []
 
 commandDescribtions :: M.Map String String
@@ -80,4 +85,5 @@ commandDescribtions = M.fromList [
     ("listbranch", "Lists all branches"),
     ("getconfig", "Gets value of configuration variable"),
     ("listcommands", "Lists all available commands"),
-    ("help", "Displays help for a command")]
+    ("help", "Displays help for a command"),
+    ("log", "Displays some lasts commits from the current branch")]

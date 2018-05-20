@@ -13,7 +13,7 @@ getPathToRefs :: ExIO FilePath
 getPathToRefs = getHitDirectoryPath >>= return . (++"/refs/")
 
 getCurrentBranch :: ExIO Branch
-getCurrentBranch = getHitDirectoryPath >>= return . (++"/head") >>= readWholeFile
+getCurrentBranch = getHitDirectoryPath >>= return . (++"head") >>= readWholeFile
 
 getBranchCommitHash :: Branch -> ExIO Hash
 getBranchCommitHash branch = getPathToRefs >>= return . (++ branch) >>= readWholeFile

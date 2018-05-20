@@ -10,6 +10,7 @@ import qualified Text.Parsec as TP
 import Control.Applicative ((<|>), (<$>))
 import Data.Char (isSpace)
 import qualified Data.Map.Strict as M
+import Text.Read (readMaybe)
 
 stringT :: String -> GenParser Char st String
 stringT str = try $ string str
@@ -19,6 +20,11 @@ quotedStringParam = char '"' >> (many $ noneOf "\"") >>= (\p -> char '"' >> retu
 
 stringParam :: GenParser Char st String
 stringParam = many $ satisfy (not . isSpace)
+
+intParam :: GenParser Char st Int
+intParam = (readMaybe <$> stringParam) >>= (\m -> case m of
+    Nothing -> oneOf "" >> return 0
+    (Just x) -> return x)
 
 parseKeyWord :: String -> GenParser Char st HitCommandType
 parseKeyWord str = readCommandType <$> stringT str
@@ -44,6 +50,7 @@ parseParameters ListBranchCommandType = return ListBranchCommand
 parseParameters GetConfigCommandType = space >> quotedStringParam >>= return . GetConfigCommand 
 parseParameters ListCommandsCommandType = return ListCommandsCommand
 parseParameters HelpCommandType = space >> stringParam >>= return . HelpCommand
+parseParameters LogCommandType = space >> intParam >>= return . LogCommand
 parseParameters _ = return InvalidCommand
 
 commandParser :: GenParser Char () HitCommand
