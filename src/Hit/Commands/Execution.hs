@@ -49,8 +49,8 @@ executeRemoveBranchCommand branch = checkIfRepositoryAndExecute (removeBranch br
 executeBranchCheckoutCommand :: Branch -> ExIO ()
 executeBranchCheckoutCommand branch = checkIfRepositoryAndExecute (changeBranch branch >> (lift $ putStrLn ("Successfully changed branch to "++ branch)))
 
-executeConfigCommand :: String -> String -> ExIO ()
-executeConfigCommand key value = checkIfRepositoryAndExecute (putToConfig key value >> (lift $ putStrLn "Successfully added to config"))
+executeSetConfigCommand :: String -> String -> ExIO ()
+executeSetConfigCommand key value = checkIfRepositoryAndExecute (putToConfig key value >> (lift $ putStrLn "Successfully added to config"))
 
 executeListBranchCommand :: ExIO ()
 executeListBranchCommand = checkIfRepositoryAndExecute (listBranches >>= printEachInLine)
@@ -67,7 +67,7 @@ executeHitCommand StatusCommand = executeStatusCommand
 executeHitCommand (NewBranchCommand branch) = executeNewBranchCommand branch
 executeHitCommand (RemoveBranchCommand branch) = executeRemoveBranchCommand branch
 executeHitCommand (CheckoutBranchCommand branch) = executeBranchCheckoutCommand branch
-executeHitCommand (ConfigCommand key value) = executeConfigCommand key value
+executeHitCommand (SetConfigCommand key value) = executeSetConfigCommand key value
 executeHitCommand ListBranchCommand = executeListBranchCommand
 executeHitCommand (GetConfigCommand key) = executeGetConfigCommand key
 executeHitCommand _ = lift $ putStrLn "Invalid command"

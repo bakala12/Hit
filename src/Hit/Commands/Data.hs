@@ -11,7 +11,7 @@ data HitCommandType = InitCommandType |
                    NewBranchCommandType |
                    RemoveBranchCommandType |
                    CheckoutBranchCommandType |
-                   ConfigCommandType |
+                   SetConfigCommandType |
                    ListBranchCommandType |
                    GetConfigCommandType |
                    InvalidCommandType
@@ -25,7 +25,7 @@ keywordToCommandTypeMap = M.fromList [
     ("newbranch", NewBranchCommandType),
     ("removebranch", RemoveBranchCommandType),
     ("checkout", CheckoutBranchCommandType),
-    ("config", ConfigCommandType),
+    ("setconfig", SetConfigCommandType),
     ("listbranch", ListBranchCommandType),
     ("getconfig", GetConfigCommandType)]
 
@@ -38,7 +38,7 @@ data HitCommand = InitCommand |
                   NewBranchCommand Branch | 
                   RemoveBranchCommand Branch | 
                   CheckoutBranchCommand Branch |
-                  ConfigCommand String String |
+                  SetConfigCommand String String |
                   ListBranchCommand |
                   GetConfigCommand String |
                   InvalidCommand

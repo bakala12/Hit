@@ -33,12 +33,12 @@ parseParameters CommitCommandType = space >> quotedStringParam >>= return . Comm
 parseParameters NewBranchCommandType = space >> stringParam >>= return . NewBranchCommand
 parseParameters RemoveBranchCommandType = space >> stringParam >>= return . RemoveBranchCommand
 parseParameters CheckoutBranchCommandType = space >> stringParam >>= return . CheckoutBranchCommand
-parseParameters ConfigCommandType = do{
+parseParameters SetConfigCommandType = do{
     space;
     key <- quotedStringParam;
     space;
     value <- quotedStringParam;
-    return $ ConfigCommand key value
+    return $ SetConfigCommand key value
 }
 parseParameters ListBranchCommandType = return ListBranchCommand
 parseParameters GetConfigCommandType = space >> quotedStringParam >>= return . GetConfigCommand 
