@@ -31,6 +31,7 @@ dependencies:
 - MissingH #string utils
 - strict #strict IO
 - filepath
+- containers
 
 library:
   source-dirs: src
