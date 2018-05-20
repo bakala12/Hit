@@ -42,6 +42,8 @@ parseParameters SetConfigCommandType = do{
 }
 parseParameters ListBranchCommandType = return ListBranchCommand
 parseParameters GetConfigCommandType = space >> quotedStringParam >>= return . GetConfigCommand 
+parseParameters ListCommandsCommandType = return ListCommandsCommand
+parseParameters HelpCommandType = space >> stringParam >>= return . HelpCommand
 parseParameters _ = return InvalidCommand
 
 commandParser :: GenParser Char () HitCommand

@@ -32,6 +32,7 @@ dependencies:
 - strict #strict IO
 - filepath
 - containers
+- stringbuilder
 
 library:
   source-dirs: src

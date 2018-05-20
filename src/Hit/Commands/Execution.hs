@@ -12,6 +12,7 @@ import Hit.Commands.Print
 import Hit.Snapshot.Changes
 import Hit.Snapshot.Checkout 
 import Hit.Repository.Config
+import Hit.Commands.Help
 
 executeInitCommand :: ExIO ()
 executeInitCommand = isInitialized >>= (\b -> if b 
@@ -60,6 +61,12 @@ executeGetConfigCommand key = checkIfRepositoryAndExecute (getFromConfig key >>=
     Nothing -> lift $ putStrLn ("Key "++key++" not in config")
     (Just x) -> lift $ putStrLn x))
 
+executeListCommandsCommand :: ExIO ()
+executeListCommandsCommand = return getAvailableCommands >>= (lift . putStrLn)
+
+executeHelpCommand :: String -> ExIO ()
+executeHelpCommand commandName = (return $ getHelpForKeyWord commandName) >>= (lift . putStrLn)
+
 executeHitCommand :: HitCommand -> ExIO ()
 executeHitCommand InitCommand = executeInitCommand
 executeHitCommand (CommitCommand message) = executeCommitCommand message
@@ -70,4 +77,6 @@ executeHitCommand (CheckoutBranchCommand branch) = executeBranchCheckoutCommand 
 executeHitCommand (SetConfigCommand key value) = executeSetConfigCommand key value
 executeHitCommand ListBranchCommand = executeListBranchCommand
 executeHitCommand (GetConfigCommand key) = executeGetConfigCommand key
+executeHitCommand ListCommandsCommand = executeListCommandsCommand
+executeHitCommand (HelpCommand commandName) = executeHelpCommand commandName
 executeHitCommand _ = lift $ putStrLn "Invalid command"
