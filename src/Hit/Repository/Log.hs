@@ -10,6 +10,7 @@ import Hit.Objects.Store
 import Hit.Common.List
 import Data.String.Builder
 import Hit.Common.Time
+import Data.List
 
 data LogEntry = LogEntry {
     commitHash :: Hash,
@@ -64,8 +65,13 @@ getLogEntries depth list hash = findCommit hash >>= (\c -> case c of
 correctDepthIfNecessary :: Int -> Int
 correctDepthIfNecessary depth = if depth < 0 then 0 else depth
 
---todo sort by date
+toTimestamp :: LogEntry -> Int
+toTimestamp e = maybe 0 id $ timestampToInt $ commitDate e
+
+sortByDate :: [LogEntry] -> [LogEntry]
+sortByDate = sortBy (\a b -> compare (toTimestamp b) (toTimestamp a))
+
 getLog :: Int -> ExIO [LogEntry]
-getLog depth = getLastCommitHash >>= getLogEntries newDepth [] >>= return . (take newDepth)
+getLog depth = getLastCommitHash >>= getLogEntries newDepth [] >>= return . sortByDate >>= return . (take newDepth)
     where 
         newDepth = correctDepthIfNecessary depth
