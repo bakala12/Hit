@@ -51,6 +51,7 @@ parseParameters GetConfigCommandType = space >> quotedStringParam >>= return . G
 parseParameters ListCommandsCommandType = return ListCommandsCommand
 parseParameters HelpCommandType = space >> stringParam >>= return . HelpCommand
 parseParameters LogCommandType = space >> intParam >>= return . LogCommand
+parseParameters CurrentFileDiffCommandType = space >> quotedStringParam >>= return . CurrentFileDiffCommand
 parseParameters _ = return InvalidCommand
 
 commandParser :: GenParser Char () HitCommand

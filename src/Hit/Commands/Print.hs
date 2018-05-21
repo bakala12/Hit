@@ -6,6 +6,7 @@ import Control.Monad.Trans.Except
 import Hit.Snapshot.Changes
 import Hit.Repository.References
 import Control.Monad
+import Data.Algorithm.DiffOutput
 
 printChangesHelper :: String -> [Change] -> ExIO ()
 printChangesHelper header ch = (lift $ putStrLn header) >> mapM (lift . putStrLn . show) ch >> (lift $ putStrLn "")
@@ -28,3 +29,8 @@ printChangesSmoothly list = getCurrentBranch >>= (\b -> (lift $ putStrLn ("On br
 printEachInLine :: [String] -> ExIO ()
 printEachInLine [] = return ()
 printEachInLine (x:xs) = (lift $ putStrLn x) >> printEachInLine xs
+
+showDiffOperation :: DiffOperation LineRange -> ExIO String
+showDiffOperation (Addition range lineNo) = return ("Addition at line "++(show lineNo)++":\n"++(unlines $ lrContents range)) 
+showDiffOperation (Deletion range lineNo) = return ("Deletion al line "++(show lineNo)++":\n"++(unlines $ lrContents range))
+showDiffOperation (Change a b) = return ("Change at line "++(show $ fst $ lrNumbers a)++":\n"++(unlines $ lrContents a)++"--->\n"++(unlines $ lrContents b))

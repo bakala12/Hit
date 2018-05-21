@@ -17,6 +17,7 @@ data HitCommandType = InitCommandType |
                    ListCommandsCommandType |
                    HelpCommandType |
                    LogCommandType |
+                   CurrentFileDiffCommandType |
                    InvalidCommandType
     deriving Show
 
@@ -33,7 +34,8 @@ keywordToCommandTypeMap = M.fromList [
     ("getconfig", GetConfigCommandType),
     ("listcommands", ListCommandsCommandType),
     ("help", HelpCommandType),
-    ("log", LogCommandType)]
+    ("log", LogCommandType),
+    ("diff", CurrentFileDiffCommandType)]
 
 readCommandType :: String -> HitCommandType
 readCommandType str = M.findWithDefault InvalidCommandType str keywordToCommandTypeMap
@@ -50,6 +52,7 @@ data HitCommand = InitCommand |
                   ListCommandsCommand |
                   HelpCommand String |
                   LogCommand Int |
+                  CurrentFileDiffCommand FilePath |
                   InvalidCommand
     deriving Show
 
@@ -60,7 +63,8 @@ parameterDefinitions = M.fromList [
     ("configKey", "configuration key"),
     ("configValue", "configuration value"),
     ("commandName", "name of hit command"),
-    ("commitNumbers", "number of commits in the history")]
+    ("commitNumbers", "number of commits in the history"),
+    ("filePath", "path to file in repository")]
         
 getParametersForCommand :: HitCommandType -> [String]
 getParametersForCommand CommitCommandType = ["commitMessage"]
@@ -71,6 +75,7 @@ getParametersForCommand GetConfigCommandType = ["configKey"]
 getParametersForCommand SetConfigCommandType = ["configKey", "configValue"]
 getParametersForCommand HelpCommandType = ["commandName"]
 getParametersForCommand LogCommandType = ["commitNumbers"]
+getParametersForCommand CurrentFileDiffCommandType = ["filePath"]
 getParametersForCommand _ = []
 
 commandDescribtions :: M.Map String String
@@ -86,4 +91,5 @@ commandDescribtions = M.fromList [
     ("getconfig", "Gets value of configuration variable"),
     ("listcommands", "Lists all available commands"),
     ("help", "Displays help for a command"),
-    ("log", "Displays some lasts commits from the current branch")]
+    ("log", "Displays some lasts commits from the current branch"),
+    ("diff", "Compares current version of file with the version of that file from last commit")]

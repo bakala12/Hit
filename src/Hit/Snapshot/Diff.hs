@@ -9,23 +9,24 @@ import Hit.Repository
 import Hit.Repository.References
 import Hit.Snapshot.Directory
 import Hit.Objects
+import Hit.Common.File
 
 fileContentsDiff :: [String] -> [String] -> [DiffOperation LineRange]
 fileContentsDiff baseVersionLines changedVersionLines = diffToLineRanges $ getGroupedDiff baseVersionLines changedVersionLines
 
-getFileDiff :: FilePath -> Tree -> Tree -> ExIO [DiffOperation LineRange]
-getFileDiff path baseTree changedTree = do {
+getFileDiff :: FilePath -> Tree -> ExIO [DiffOperation LineRange]
+getFileDiff path baseTree = do {
     baseVersion <- findFileInTree path baseTree;
-    changedVersion <- findFileInTree path changedTree;
+    changedVersion <- readWholeFile path;
     baseLines <- return $ lines $ fileContent baseVersion;
-    changedLines <- return $ lines $ fileContent changedVersion;
+    changedLines <- return $ lines changedVersion;
     return $ fileContentsDiff baseLines changedLines
 }
 
+--todo -> check if file exists
 getDiffFromCurrentVersion :: FilePath -> ExIO [DiffOperation LineRange]
 getDiffFromCurrentVersion path = do{
     p <- getRepositoryDirectory;
-    current <- getTree p False;
     lastSaved <- getCurrentBranchVersion;
-    getFileDiff path lastSaved current
+    getFileDiff path lastSaved
 }

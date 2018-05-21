@@ -14,6 +14,7 @@ import Hit.Snapshot.Checkout
 import Hit.Repository.Config
 import Hit.Commands.Help
 import Hit.Repository.Log
+import Hit.Snapshot.Diff
 
 executeInitCommand :: ExIO ()
 executeInitCommand = isInitialized >>= (\b -> if b 
@@ -69,7 +70,10 @@ executeHelpCommand :: String -> ExIO ()
 executeHelpCommand commandName = (return $ getHelpForKeyWord commandName) >>= (lift . putStrLn)
 
 executeLogCommand :: Int -> ExIO ()
-executeLogCommand commitNum = checkIfRepositoryAndExecute (getLog commitNum >>= (mapM (return .show)) >>= printEachInLine)
+executeLogCommand commitNum = checkIfRepositoryAndExecute (getLog commitNum >>= (mapM (return . show)) >>= printEachInLine)
+
+executeCurrentFileDiffCommand :: FilePath -> ExIO ()
+executeCurrentFileDiffCommand path = checkIfRepositoryAndExecute (getDiffFromCurrentVersion path >>= (mapM showDiffOperation) >>= printEachInLine)
 
 executeHitCommand :: HitCommand -> ExIO ()
 executeHitCommand InitCommand = executeInitCommand
@@ -84,4 +88,5 @@ executeHitCommand (GetConfigCommand key) = executeGetConfigCommand key
 executeHitCommand ListCommandsCommand = executeListCommandsCommand
 executeHitCommand (HelpCommand commandName) = executeHelpCommand commandName
 executeHitCommand (LogCommand commitNum) = executeLogCommand commitNum
+executeHitCommand (CurrentFileDiffCommand path) = executeCurrentFileDiffCommand path
 executeHitCommand _ = lift $ putStrLn "Invalid command"
