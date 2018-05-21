@@ -29,6 +29,7 @@ createCommit commitMessage = do{
     a <- getAuthor;
     t <- getTimestamp;
     par <- (getCurrentBranch >>= getBranchCommitHash);
+    parLis <- return (if par == "" then [] else [par]);
     commit <- return $ Commit {
         tree = treeHash,
         message = commitMessage,
@@ -36,7 +37,7 @@ createCommit commitMessage = do{
         committer = a,
         authorTimestamp = t,
         committerTimestamp = t,
-        parents = [par]};
+        parents = parLis};
     storeObject commit;
     return commit;
 }

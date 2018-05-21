@@ -8,6 +8,9 @@ import Hit.Common.File
 import Hit.Objects
 import Hit.Objects.Store
 import Control.Applicative
+import System.FilePath hiding (splitPath)
+import Hit.Common.List
+import Data.String.Utils
 
 getPathToRefs :: ExIO FilePath
 getPathToRefs = getHitDirectoryPath >>= return . (++"/refs/")
@@ -79,3 +82,16 @@ getTreeFromHash hash = getPathToObject hash >>= restoreTree
 
 getCommitFromHash :: Hash -> ExIO Commit
 getCommitFromHash hash = getPathToObject hash >>= restoreCommit
+
+getFullHash :: Hash -> ExIO Hash
+getFullHash hash = do{
+    path <- getPathToObject hash;
+    dirPath <- return $ takeDirectory path;
+    name <- return $ takeFileName path;
+    ent <- getDirectoryEntries dirPath;
+    first <- return $ take 2 hash;
+    m <- return $ findOnlyMatching (startswith) name ent;
+    case m of 
+        Nothing -> throwE "Cannot file exactly one object defined by hash"
+        (Just x) -> return (first++x)
+}

@@ -75,6 +75,9 @@ executeLogCommand commitNum = checkIfRepositoryAndExecute (getLog commitNum >>= 
 executeCurrentFileDiffCommand :: FilePath -> ExIO ()
 executeCurrentFileDiffCommand path = checkIfRepositoryAndExecute (getDiffFromCurrentVersion path >>= (mapM showDiffOperation) >>= printEachInLine)
 
+executeCommittedFileDiffCommand :: FilePath -> Hash -> Hash -> ExIO ()
+executeCommittedFileDiffCommand path hash1 hash2 = checkIfRepositoryAndExecute (getDiffBetweenCommits path hash1 hash2 >>= (mapM showDiffOperation) >>= printEachInLine)
+
 executeHitCommand :: HitCommand -> ExIO ()
 executeHitCommand InitCommand = executeInitCommand
 executeHitCommand (CommitCommand message) = executeCommitCommand message
@@ -89,4 +92,5 @@ executeHitCommand ListCommandsCommand = executeListCommandsCommand
 executeHitCommand (HelpCommand commandName) = executeHelpCommand commandName
 executeHitCommand (LogCommand commitNum) = executeLogCommand commitNum
 executeHitCommand (CurrentFileDiffCommand path) = executeCurrentFileDiffCommand path
+executeHitCommand (CommittedFileDiffCommand path hash1 hash2) = executeCommittedFileDiffCommand path hash1 hash2
 executeHitCommand _ = lift $ putStrLn "Invalid command"

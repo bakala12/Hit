@@ -23,10 +23,27 @@ getFileDiff path baseTree = do {
     return $ fileContentsDiff baseLines changedLines
 }
 
---todo -> check if file exists
 getDiffFromCurrentVersion :: FilePath -> ExIO [DiffOperation LineRange]
 getDiffFromCurrentVersion path = do{
     p <- getRepositoryDirectory;
     lastSaved <- getCurrentBranchVersion;
     getFileDiff path lastSaved
+}
+
+getFileDiff' :: FilePath -> Tree -> Tree -> ExIO [DiffOperation LineRange]
+getFileDiff' path baseTree changedTree = do {
+    baseVersion <- findFileInTree path baseTree;
+    changedVersion <- findFileInTree path changedTree;
+    baseLines <- return $ lines $ fileContent baseVersion;
+    changedLines <- return $ lines $ fileContent changedVersion;
+    return $ fileContentsDiff baseLines changedLines
+}
+
+getDiffBetweenCommits :: FilePath -> Hash -> Hash -> ExIO [DiffOperation LineRange]
+getDiffBetweenCommits path commit1Hash commit2Hash = do{
+    hash1 <- getFullHash commit1Hash;
+    hash2 <- getFullHash commit2Hash;
+    baseTree <- getVersion hash1;
+    changedTree <- getVersion hash2;
+    getFileDiff' path baseTree changedTree;
 }

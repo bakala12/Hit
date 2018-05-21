@@ -52,6 +52,15 @@ parseParameters ListCommandsCommandType = return ListCommandsCommand
 parseParameters HelpCommandType = space >> stringParam >>= return . HelpCommand
 parseParameters LogCommandType = space >> intParam >>= return . LogCommand
 parseParameters CurrentFileDiffCommandType = space >> quotedStringParam >>= return . CurrentFileDiffCommand
+parseParameters CommittedFileDiffCommandType = do{
+    space;
+    path <- quotedStringParam;
+    space;
+    hash1 <- stringParam;
+    space;
+    hash2 <- stringParam;
+    return $ CommittedFileDiffCommand path hash1 hash2
+}
 parseParameters _ = return InvalidCommand
 
 commandParser :: GenParser Char () HitCommand
