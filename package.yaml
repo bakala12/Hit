@@ -33,6 +33,7 @@ dependencies:
 - filepath
 - containers
 - stringbuilder
+- Diff
 
 library:
   source-dirs: src
