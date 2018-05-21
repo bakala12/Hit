@@ -60,17 +60,18 @@ remainingHashesParser = (P.char ' ' >> parentsHashesParser) TP.<|> (return [])
 
 parentsHashesParser :: P.GenParser Char st [Hash]
 parentsHashesParser = do{
-    f <- P.many $ P.noneOf " \n";
+    f <- P.many1 $ P.noneOf " \n";
     r <- remainingHashesParser;
     return (f:r)
 } 
 
 commitParentsParser :: P.GenParser Char st [Hash]
-commitParentsParser = (P.string "parent " >> parentsHashesParser >>= (\h -> newline >> return h)) TP.<|> (return [])
+commitParentsParser = (try (P.string "parent " >> parentsHashesParser >>= (\h -> newline >> return h))) TP.<|> (return [])
 
 commitAuthorParser :: P.GenParser Char st (CommitAuthor, String)
 commitAuthorParser = do{
-    n <- P.many (P.noneOf "<");
+    n <- P.many (P.noneOf " ");
+    P.space;
     e <- P.char '<' >> P.many (P.noneOf ">");
     timestamp <- P.char '>' >> P.space >> P.many (P.noneOf "\n");
     return (CommitAuthor {name = n, email = e}, timestamp)
@@ -89,7 +90,7 @@ commitParser = do{
     par <- commitParentsParser; --parent is optional!
     (a, at) <- P.string "author " >> commitAuthorParser;
     P.newline;
-    (c, ct) <- P.string "committer" >> commitAuthorParser;
+    (c, ct) <- P.string "committer " >> commitAuthorParser;
     P.newline;
     P.newline;
     mess <- P.many P.anyChar>>= return . removeLast; --removing additional \n from end
