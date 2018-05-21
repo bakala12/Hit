@@ -30,6 +30,11 @@ isModified :: Change -> Bool
 isModified (Modified _) = True
 isModified _ = False
 
+getPath :: Change -> FilePath
+getPath (New p) = p
+getPath (Removed p) = p
+getPath (Modified p) = p
+
 -- Filtering non changed files
 compareEntries :: (Eq a) => (DirectoryEntry -> a) -> DirectoryEntry -> DirectoryEntry -> Bool
 compareEntries f entry1 entry2 = (f entry1) == (f entry2)

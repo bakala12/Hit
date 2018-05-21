@@ -61,6 +61,7 @@ parseParameters CommittedFileDiffCommandType = do{
     hash2 <- stringParam;
     return $ CommittedFileDiffCommand path hash1 hash2
 }
+parseParameters MergeCommandType = space >> stringParam >>= return . MergeCommand
 parseParameters _ = return InvalidCommand
 
 commandParser :: GenParser Char () HitCommand

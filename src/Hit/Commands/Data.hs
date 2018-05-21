@@ -19,6 +19,7 @@ data HitCommandType = InitCommandType |
                    LogCommandType |
                    CurrentFileDiffCommandType |
                    CommittedFileDiffCommandType |
+                   MergeCommandType |
                    InvalidCommandType
     deriving Show
 
@@ -37,7 +38,8 @@ keywordToCommandTypeMap = M.fromList [
     ("help", HelpCommandType),
     ("log", LogCommandType),
     ("diff", CurrentFileDiffCommandType),
-    ("diffc", CommittedFileDiffCommandType)]
+    ("diffc", CommittedFileDiffCommandType),
+    ("merge", MergeCommandType)]
 
 readCommandType :: String -> HitCommandType
 readCommandType str = M.findWithDefault InvalidCommandType str keywordToCommandTypeMap
@@ -56,6 +58,7 @@ data HitCommand = InitCommand |
                   LogCommand Int |
                   CurrentFileDiffCommand FilePath |
                   CommittedFileDiffCommand FilePath Hash Hash |
+                  MergeCommand Branch |
                   InvalidCommand
     deriving Show
 
@@ -81,6 +84,7 @@ getParametersForCommand HelpCommandType = ["commandName"]
 getParametersForCommand LogCommandType = ["commitNumbers"]
 getParametersForCommand CurrentFileDiffCommandType = ["filePath"]
 getParametersForCommand CommittedFileDiffCommandType = ["filePath", "commitHash", "commitHash"]
+getParametersForCommand MergeCommandType = ["branch"]
 getParametersForCommand _ = []
 
 commandDescribtions :: M.Map String String
@@ -98,4 +102,5 @@ commandDescribtions = M.fromList [
     ("help", "Displays help for a command"),
     ("log", "Displays some lasts commits from the current branch"),
     ("diff", "Compares current version of file with the version of that file from last commit"),
-    ("diffc", "Compares file versions in two given commits")]
+    ("diffc", "Compares file versions in two given commits"),
+    ("merge", "Merges a given branch to a current one")]
