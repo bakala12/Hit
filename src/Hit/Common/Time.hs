@@ -5,6 +5,14 @@ import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
 import Data.Time.Format
 import qualified Data.Time.LocalTime as L
+import Control.Applicative
+import Text.Read (readMaybe)
 
 getTimestamp :: ExIO HitTimestamp
 getTimestamp = lift L.getZonedTime >>= return . (formatTime defaultTimeLocale "%s %z")
+
+timestampToInt :: HitTimestamp -> Maybe Int
+timestampToInt time = (readMaybe <$> ((formatTime defaultTimeLocale "%s") <$> ((parseTimeM True defaultTimeLocale "%s %z" time) :: Maybe L.ZonedTime))) >>= id
+
+toPrettyUnixDate :: HitTimestamp -> Maybe String
+toPrettyUnixDate time =  (formatTime defaultTimeLocale "%a %b %d %T %0Y %z") <$> ((parseTimeM True defaultTimeLocale "%s %z" time) :: Maybe L.ZonedTime)

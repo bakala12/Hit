@@ -9,6 +9,7 @@ import Hit.Repository.References
 import Hit.Objects.Store
 import Hit.Common.List
 import Data.String.Builder
+import Hit.Common.Time
 
 data LogEntry = LogEntry {
     commitHash :: Hash,
@@ -25,8 +26,8 @@ logEntryToString e = do{
     literal "Author: ";
     literal $ show $ commitAuthor e;
     literal "\n";
-    literal "Date ";
-    literal $ commitDate e;
+    literal "Date: ";
+    literal (maybe "" id $ toPrettyUnixDate $ commitDate e);
     literal "\n\n";
     literal $ commitMessage e;
     literal "\n";
