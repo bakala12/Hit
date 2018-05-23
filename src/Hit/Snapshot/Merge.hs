@@ -10,18 +10,50 @@ import Hit.Repository
 import Hit.Common.List
 import Hit.Objects
 import Control.Monad
+import Hit.Common.File
+import Data.String.Builder
+import Hit.Snapshot.Directory
 
 data MergeConflict = RemovedConflict FilePath | ModifiedConflict FilePath
 
-applyChange :: Tree -> Tree -> [MergeConflict] -> Change -> ExIO [MergeConflict]
-applyChange current branch c (New p) = return c --addFile, no conflict
-applyChange current branch c (Removed p) = return c --conflict Removed
-applyChange current branch c (Modified p) = return c --conflict Modified
+instance Show MergeConflict where
+    show (RemovedConflict p) = "Conflict -> Removed file: "++p++" -> file was not removed, remove it manually if needed"
+    show (ModifiedConflict p) = "Conflict -> Modified file: "++p++" -> file was modified, confict markers added"
 
-applyChanges :: Tree -> Tree -> [Change] -> ExIO [MergeConflict]
-applyChanges current branch changes = foldM (applyChange current branch) [] changes
+applyNewFile :: FilePath -> Tree -> ExIO ()
+applyNewFile path tree = findFileInTree path tree >>= return . fileContent >>= createFileWithParentDirectories path
 
-mergeBranch :: Branch -> ExIO ()
+conflictFileBuilder :: Branch -> Branch -> String -> String -> Builder
+conflictFileBuilder currentBranch mergedBranch version1 version2 = do{
+    literal "<<<<<<< ";
+    literal currentBranch;
+    literal "\n";
+    literal version1;
+    literal "=======\n";
+    literal version2;
+    literal "\n>>>>>>> ";
+    literal mergedBranch;
+}
+
+writeDiff :: FilePath -> Branch -> Blob -> Blob -> ExIO ()
+writeDiff path name current branch = getCurrentBranch >>= (\b -> return $ build $ conflictFileBuilder b name (fileContent current) (fileContent branch)) >>= writeWholeFile path
+
+applyModifiedFile :: Branch -> FilePath -> Tree -> Tree -> ExIO ()
+applyModifiedFile mergedBranch path current branch = do{
+    b1 <- findFileInTree path current;
+    b2 <- findFileInTree path branch;
+    writeDiff path mergedBranch b1 b2
+}
+
+applyChange :: Branch -> Tree -> Tree -> [MergeConflict] -> Change -> ExIO [MergeConflict]
+applyChange name current branch c (New p) = applyNewFile p branch >> return c --addFile, no conflict
+applyChange name current branch c (Removed p) = return (c++[RemovedConflict p]) --conflict Removed
+applyChange name current branch c (Modified p) = applyModifiedFile name p current branch >> return (c++[ModifiedConflict p]) --conflict Modified
+
+applyChanges :: Branch -> Tree -> Tree -> [Change] -> ExIO [MergeConflict]
+applyChanges name current branch changes = foldM (applyChange name current branch) [] changes
+
+mergeBranch :: Branch -> ExIO [MergeConflict]
 mergeBranch branch = do{
     current <- getCurrentBranch;
     lastCurrent <- getBranchCommitHash current;
@@ -29,7 +61,7 @@ mergeBranch branch = do{
     currentTree <- getVersion lastCurrent;
     branchTree <- getVersion lastBranch;
     path <- getRepositoryDirectory;
-    changes <- compareDirectoryTrees path currentTree branchTree;
-    applyChanges currentTree branchTree changes;
-    return ()
+    changes <- compareDirectoryTrees path branchTree currentTree;
+    lift $ putStrLn $ show changes;
+    applyChanges branch currentTree branchTree changes;
 }
