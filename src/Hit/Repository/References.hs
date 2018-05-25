@@ -13,7 +13,7 @@ import Hit.Common.List
 import Data.String.Utils
 
 getPathToRefs :: ExIO FilePath
-getPathToRefs = getHitDirectoryPath >>= return . (++"/refs/")
+getPathToRefs = getHitDirectoryPath >>= return . (++"refs/")
 
 getCurrentBranch :: ExIO Branch
 getCurrentBranch = getHitDirectoryPath >>= return . (++"head") >>= readWholeFile

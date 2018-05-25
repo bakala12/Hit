@@ -13,6 +13,7 @@ import Control.Monad
 import Hit.Common.File
 import Data.String.Builder
 import Hit.Snapshot.Directory
+import Hit.Snapshot.TreeCompare
 
 data MergeConflict = RemovedConflict FilePath | ModifiedConflict FilePath
 
@@ -61,7 +62,8 @@ mergeBranch branch = do{
     currentTree <- getVersion lastCurrent;
     branchTree <- getVersion lastBranch;
     path <- getRepositoryDirectory;
-    changes <- compareDirectoryTrees path branchTree currentTree;
+    changes <- compareTrees path branchTree currentTree;
     lift $ putStrLn $ show changes;
-    applyChanges branch currentTree branchTree changes;
+    --applyChanges branch currentTree branchTree changes;
+    return []
 }
