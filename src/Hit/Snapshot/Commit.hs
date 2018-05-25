@@ -10,6 +10,7 @@ import Hit.Repository.Config
 import Hit.Common.Time
 import Hit.Repository.References
 import Data.Maybe
+import Control.Monad
 
 defaultEmptyFromConfig :: String -> ExIO String
 defaultEmptyFromConfig key = getFromConfig key >>= return . (maybe "" id)
@@ -21,15 +22,14 @@ getAuthor = do{
     return $ CommitAuthor {name = n, email = e}
 }
 
-createCommit :: String -> ExIO Commit
-createCommit commitMessage = do{
+createCommitWithParents :: String -> [Hash] -> ExIO Commit
+createCommitWithParents commitMessage par = do{
     repo <- getRepositoryDirectory;
     tree <- getTree repo True;
     treeHash <- return $ hashObject tree;
     a <- getAuthor;
     t <- getTimestamp;
-    par <- (getCurrentBranch >>= getBranchCommitHash);
-    parLis <- return (if par == "" then [] else [par]);
+    parLis <- filterM (return . (/="")) par;
     commit <- return $ Commit {
         tree = treeHash,
         message = commitMessage,
@@ -41,3 +41,6 @@ createCommit commitMessage = do{
     storeObject commit;
     return commit;
 }
+
+createCommit :: String -> ExIO Commit 
+createCommit msg = getCurrentBranch >>= getBranchCommitHash >>= (\h -> createCommitWithParents msg [h])

@@ -14,6 +14,7 @@ import Hit.Common.File
 import Data.String.Builder
 import Hit.Snapshot.Directory
 import Hit.Snapshot.TreeCompare
+import Hit.Snapshot.Commit
 
 data MergeConflict = RemovedConflict FilePath | ModifiedConflict FilePath
 
@@ -63,7 +64,20 @@ mergeBranch branch = do{
     branchTree <- getVersion lastBranch;
     path <- getRepositoryDirectory;
     changes <- compareTrees path branchTree currentTree;
-    lift $ putStrLn $ show changes;
-    --applyChanges branch currentTree branchTree changes;
-    return []
+    if changes == []
+        then (lift $ putStrLn "No changes - merge already done") >> return []
+        else finishMerge branch current currentTree branchTree changes [lastCurrent, lastBranch]
+}    
+
+finishMerge :: Branch -> Branch -> Tree -> Tree -> [Change] -> [Hash] -> ExIO [MergeConflict]
+finishMerge branch current currentTree branchTree changes parents = do{
+    conflicts <- applyChanges branch currentTree branchTree changes;
+    m <- makeMergeCommitIfNoConflicts current branch parents conflicts;
+    case m of
+        (Just hash) -> (lift $ putStrLn ("Merge commit: "++hash)) >> return []
+        Nothing -> return conflicts 
 }
+
+makeMergeCommitIfNoConflicts :: Branch -> Branch -> [Hash] -> [MergeConflict] -> ExIO (Maybe Hash)
+makeMergeCommitIfNoConflicts current branch parents [] = createCommitWithParents ("Merge branch "++branch++" into "++current) parents >>= return . hashObject >>= (\h -> writeCommit h >> (return $ Just h))
+makeMergeCommitIfNoConflicts _ _ _ list = return Nothing
