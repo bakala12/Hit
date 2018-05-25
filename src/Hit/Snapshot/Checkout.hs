@@ -44,4 +44,6 @@ makeBranchCheckout branch = getBranchCommitHash branch >>= makeHashCheckout
 changeBranch :: Branch -> ExIO ()
 changeBranch branch = doesBranchExist branch >>= (\r -> if r then return () else throwE "Branch does not exist") >> isCurrentBranch branch >>= (\r -> if r 
     then throwE "Cannot checkout to current branch"
-    else makeBranchCheckout branch >> changeCurrentBranch branch)
+    else return ()) >> getRepositoryChanges >>= (\r -> if r == [] 
+        then makeBranchCheckout branch >> changeCurrentBranch branch 
+        else throwE "Your directory has changes that will be lost after checkout. Commit them first. Checkout aborted")
