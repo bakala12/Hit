@@ -64,12 +64,12 @@ getNonIdentical (x:xs) l2 = if r
 --Matching directory entries
 data MatchingEntry = Matching FilePath DirectoryEntry DirectoryEntry | NewEntry FilePath DirectoryEntry | RemovedEntry FilePath DirectoryEntry deriving Show
 
-matchBy :: (Eq a) => (DirectoryEntry -> a) -> DirectoryEntry -> [DirectoryEntry] -> (Maybe DirectoryEntry, [DirectoryEntry])
-matchBy f e list = foldl helper (Nothing, []) list
+matchBy :: (DirectoryEntry -> Bool) -> [DirectoryEntry] -> (Maybe DirectoryEntry, [DirectoryEntry])
+matchBy f list = foldl helper (Nothing, []) list
     where
         helper :: (Maybe DirectoryEntry, [DirectoryEntry]) -> DirectoryEntry -> (Maybe DirectoryEntry, [DirectoryEntry])
         helper ((Just x), list) d = ((Just x), d:list)
-        helper (Nothing, list) d = if f d == f e 
+        helper (Nothing, list) d = if f d  
             then (Just d, list)
             else (Nothing, d:list)
 
@@ -80,7 +80,9 @@ matchChanges dirPath (c:cs) last = case m of
     (Just x) -> ((Matching dirPath c x):recR)
     Nothing -> ((NewEntry dirPath c):recR)
     where
-        (m, list) = matchBy entryName c last
+        compareHelper :: DirectoryEntry -> DirectoryEntry -> Bool
+        compareHelper d e = ((entryName d) == (entryName e)) && ((permissions d) == (permissions e))
+        (m, list) = matchBy (compareHelper c) last
         recR = matchChanges dirPath cs list
 
 getMatchingChanges :: FilePath -> [DirectoryEntry] -> [DirectoryEntry] -> [MatchingEntry]
