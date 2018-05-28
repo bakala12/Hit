@@ -2,7 +2,8 @@ module Hit.Repository (
     getRepositoryDirectory,
     setRepositoryDirectory,
     getHitDirectoryPath,
-    getPathToObjects
+    getPathToObjects,
+    getPathToMergeFile
 ) where
     
 import Hit.Common.Data
@@ -28,3 +29,6 @@ getHitDirectoryPath = getRepositoryDirectory >>= return . (pasteToPath "/.hit/")
 
 getPathToObjects :: ExIO FilePath
 getPathToObjects = getHitDirectoryPath >>= return . (pasteToPath "objects/")
+
+getPathToMergeFile :: ExIO FilePath
+getPathToMergeFile = getHitDirectoryPath >>= return . (pasteToPath "Merge")

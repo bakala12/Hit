@@ -81,7 +81,7 @@ executeCommittedFileDiffCommand :: FilePath -> Hash -> Hash -> ExIO ()
 executeCommittedFileDiffCommand path hash1 hash2 = checkIfRepositoryAndExecute (getDiffBetweenCommits path hash1 hash2 >>= (mapM showDiffOperation) >>= printEachInLine)
 
 executeMergeCommand :: Branch -> ExIO ()
-executeMergeCommand branch = checkIfRepositoryAndExecute (mergeBranch branch >>= (mapM (return . show)) >>= printEachInLine)
+executeMergeCommand branch = checkIfRepositoryAndExecute (mergeBranch branch >>= printMergeConflicts)
 
 executeResetFileCommand :: FilePath -> ExIO ()
 executeResetFileCommand path = checkIfRepositoryAndExecute (resetChangesInFile path)

@@ -7,6 +7,7 @@ import Hit.Snapshot.Changes
 import Hit.Repository.References
 import Control.Monad
 import Data.Algorithm.DiffOutput
+import Hit.Snapshot.Merge
 
 printChangesHelper :: String -> [Change] -> ExIO ()
 printChangesHelper header ch = (lift $ putStrLn header) >> mapM (lift . putStrLn . show) ch >> (lift $ putStrLn "")
@@ -34,3 +35,7 @@ showDiffOperation :: DiffOperation LineRange -> ExIO String
 showDiffOperation (Addition range lineNo) = return ("Addition at line "++(show lineNo)++":\n"++(unlines $ lrContents range)) 
 showDiffOperation (Deletion range lineNo) = return ("Deletion al line "++(show lineNo)++":\n"++(unlines $ lrContents range))
 showDiffOperation (Change a b) = return ("Change at line "++(show $ fst $ lrNumbers a)++":\n"++(unlines $ lrContents a)++"--->\n"++(unlines $ lrContents b))
+
+printMergeConflicts :: [MergeConflict] -> ExIO ()
+printMergeConflicts [] = lift $ putStrLn "Merge finished successfully"
+printMergeConflicts list = (lift $ putStrLn "Merge failed with followed conflicts. Resolve conflicts and commit them to finish merge") >> (mapM (return . show) list) >>= printEachInLine

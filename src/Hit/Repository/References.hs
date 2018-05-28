@@ -95,3 +95,13 @@ getFullHash hash = do{
         Nothing -> throwE "Cannot file exactly one object defined by hash"
         (Just x) -> return (first++x)
 }
+
+isInMergeState :: ExIO Bool
+isInMergeState = getPathToMergeFile >>= isExistingFile
+
+getMergeParents :: ExIO [Hash]
+getMergeParents = getPathToMergeFile >>= readWholeFile >>= return . read
+
+setMergeParents :: [Hash] -> ExIO ()
+setMergeParents [] = getPathToMergeFile >>= (\p -> catchE (removeExistingFile p) (\e -> return ()))
+setMergeParents list = getPathToMergeFile >>= (\p -> writeWholeFile p $ show list) 

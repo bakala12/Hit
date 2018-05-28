@@ -75,7 +75,7 @@ finishMerge branch current currentTree branchTree changes parents = do{
     m <- makeMergeCommitIfNoConflicts current branch parents conflicts;
     case m of
         (Just hash) -> (lift $ putStrLn ("Merge commit: "++hash)) >> return []
-        Nothing -> return conflicts 
+        Nothing -> setMergeParents parents >> return conflicts 
 }
 
 makeMergeCommitIfNoConflicts :: Branch -> Branch -> [Hash] -> [MergeConflict] -> ExIO (Maybe Hash)

@@ -43,4 +43,6 @@ createCommitWithParents commitMessage par = do{
 }
 
 createCommit :: String -> ExIO Commit 
-createCommit msg = getCurrentBranch >>= getBranchCommitHash >>= (\h -> createCommitWithParents msg [h])
+createCommit msg = isInMergeState >>= (\b -> if b 
+    then getMergeParents >>= (\p -> setMergeParents [] >> return p) >>= createCommitWithParents msg 
+    else getCurrentBranch >>= getBranchCommitHash >>= (\h -> createCommitWithParents msg [h]))
