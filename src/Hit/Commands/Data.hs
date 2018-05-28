@@ -20,6 +20,8 @@ data HitCommandType = InitCommandType |
                    CurrentFileDiffCommandType |
                    CommittedFileDiffCommandType |
                    MergeCommandType |
+                   ResetFileCommandType |
+                   ResetAllCommandType |
                    InvalidCommandType
     deriving Show
 
@@ -39,7 +41,9 @@ keywordToCommandTypeMap = M.fromList [
     ("log", LogCommandType),
     ("diff", CurrentFileDiffCommandType),
     ("diffc", CommittedFileDiffCommandType),
-    ("merge", MergeCommandType)]
+    ("merge", MergeCommandType),
+    ("reset", ResetFileCommandType),
+    ("resetall", ResetAllCommandType)]
 
 readCommandType :: String -> HitCommandType
 readCommandType str = M.findWithDefault InvalidCommandType str keywordToCommandTypeMap
@@ -59,6 +63,8 @@ data HitCommand = InitCommand |
                   CurrentFileDiffCommand FilePath |
                   CommittedFileDiffCommand FilePath Hash Hash |
                   MergeCommand Branch |
+                  ResetFileCommand FilePath |
+                  ResetAllCommand |
                   InvalidCommand
     deriving Show
 
@@ -85,6 +91,7 @@ getParametersForCommand LogCommandType = ["commitNumbers"]
 getParametersForCommand CurrentFileDiffCommandType = ["filePath"]
 getParametersForCommand CommittedFileDiffCommandType = ["filePath", "commitHash", "commitHash"]
 getParametersForCommand MergeCommandType = ["branch"]
+getParametersForCommand ResetFileCommandType = ["filePath"]
 getParametersForCommand _ = []
 
 commandDescribtions :: M.Map String String
@@ -103,4 +110,6 @@ commandDescribtions = M.fromList [
     ("log", "Displays some lasts commits from the current branch"),
     ("diff", "Compares current version of file with the version of that file from last commit"),
     ("diffc", "Compares file versions in two given commits"),
-    ("merge", "Merges a given branch to a current one")]
+    ("merge", "Merges a given branch to a current one"),
+    ("reset", "Resets changes made in a given file"),
+    ("resetall", "Resets all changes in working directory")]

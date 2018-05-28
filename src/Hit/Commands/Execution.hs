@@ -16,6 +16,7 @@ import Hit.Commands.Help
 import Hit.Repository.Log
 import Hit.Snapshot.Diff
 import Hit.Snapshot.Merge
+import Hit.Snapshot.Reset
 
 executeInitCommand :: ExIO ()
 executeInitCommand = isInitialized >>= (\b -> if b 
@@ -82,6 +83,12 @@ executeCommittedFileDiffCommand path hash1 hash2 = checkIfRepositoryAndExecute (
 executeMergeCommand :: Branch -> ExIO ()
 executeMergeCommand branch = checkIfRepositoryAndExecute (mergeBranch branch >>= (mapM (return . show)) >>= printEachInLine)
 
+executeResetFileCommand :: FilePath -> ExIO ()
+executeResetFileCommand path = checkIfRepositoryAndExecute (resetChangesInFile path)
+
+executeResetAllCommand :: ExIO ()
+executeResetAllCommand = checkIfRepositoryAndExecute resetAllChanges
+
 executeHitCommand :: HitCommand -> ExIO ()
 executeHitCommand InitCommand = executeInitCommand
 executeHitCommand (CommitCommand message) = executeCommitCommand message
@@ -98,4 +105,6 @@ executeHitCommand (LogCommand commitNum) = executeLogCommand commitNum
 executeHitCommand (CurrentFileDiffCommand path) = executeCurrentFileDiffCommand path
 executeHitCommand (CommittedFileDiffCommand path hash1 hash2) = executeCommittedFileDiffCommand path hash1 hash2
 executeHitCommand (MergeCommand branch) = executeMergeCommand branch
+executeHitCommand (ResetFileCommand path) = executeResetFileCommand path
+executeHitCommand ResetAllCommand = executeResetAllCommand
 executeHitCommand _ = lift $ putStrLn "Invalid command"
