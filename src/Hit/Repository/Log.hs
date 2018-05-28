@@ -17,7 +17,7 @@ data LogEntry = LogEntry {
     commitAuthor :: CommitAuthor,
     commitDate :: String,
     commitMessage :: String 
-} 
+} deriving Eq
 
 logEntryToString :: LogEntry -> Builder
 logEntryToString e = do{
@@ -35,7 +35,7 @@ logEntryToString e = do{
 }
 
 instance Show LogEntry where
-    show e = build $ logEntryToString e
+    show e = build $ logEntryToString e    
 
 commitToLogEntry :: Commit -> LogEntry
 commitToLogEntry commit = LogEntry {
@@ -72,6 +72,6 @@ sortByDate :: [LogEntry] -> [LogEntry]
 sortByDate = sortBy (\a b -> compare (toTimestamp b) (toTimestamp a))
 
 getLog :: Int -> ExIO [LogEntry]
-getLog depth = getLastCommitHash >>= getLogEntries newDepth [] >>= return . sortByDate >>= return . (take newDepth)
+getLog depth = getLastCommitHash >>= getLogEntries newDepth [] >>= return . nub >>= return . sortByDate >>= return . (take newDepth)
     where 
         newDepth = correctDepthIfNecessary depth
