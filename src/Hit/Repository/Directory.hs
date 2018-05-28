@@ -8,7 +8,7 @@ import Hit.Objects
 import Hit.Common.Permissions
 import Control.Monad
 import Hit.Repository.Ignore
-import Hit.Objects.Store
+import Hit.Store
 import Hit.Common.List
 import Hit.Repository
 import Hit.Repository.References

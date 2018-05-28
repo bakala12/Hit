@@ -1,4 +1,4 @@
-module Hit.Objects.Compression where
+module Hit.Common.Compression where
 
 import Data.ByteString.Lazy.Char8
 import Codec.Compression.Zlib

@@ -3,8 +3,8 @@ module Hit.Objects where
 import Data.List
 import Data.ByteString.Lazy.Internal
 import Hit.Common.Data
-import Hit.Objects.Hash
-import Hit.Objects.Compression
+import Hit.Common.Hash
+import Hit.Common.Compression
 
 data HitObjectType = BlobType | TreeType | CommitType deriving Eq
 

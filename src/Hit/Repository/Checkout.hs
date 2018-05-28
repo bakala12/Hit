@@ -10,7 +10,7 @@ import Hit.Repository
 import Hit.Repository.Directory
 import Control.Monad
 import Hit.Common.File
-import Hit.Objects.Store
+import Hit.Store
 import Hit.Common.List
 import Hit.Repository.Data
 

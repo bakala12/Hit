@@ -6,7 +6,7 @@ import Hit.Common.Data
 import Hit.Repository.Changes
 import Hit.Objects
 import Hit.Common.List
-import Hit.Objects.Store
+import Hit.Store
 import Hit.Repository
 import Hit.Repository.References
 import Hit.Repository.Data

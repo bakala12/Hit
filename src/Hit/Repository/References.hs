@@ -6,7 +6,7 @@ import Hit.Common.Data
 import Hit.Repository
 import Hit.Common.File
 import Hit.Objects
-import Hit.Objects.Store
+import Hit.Store
 import Control.Applicative
 import System.FilePath hiding (splitPath)
 import Hit.Common.List

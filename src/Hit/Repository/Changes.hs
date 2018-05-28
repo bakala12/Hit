@@ -9,7 +9,7 @@ import Hit.Repository.Directory
 import Hit.Repository.References
 import Hit.Common.File
 import Hit.Common.List
-import Hit.Objects.Store
+import Hit.Store
 import Hit.Repository.Data
 
 -- Filtering non changed files

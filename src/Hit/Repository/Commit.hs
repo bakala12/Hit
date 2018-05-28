@@ -3,7 +3,7 @@ module Hit.Repository.Commit where
 import Hit.Common.Data
 import Control.Monad.Trans.Except
 import Hit.Objects
-import Hit.Objects.Store
+import Hit.Store
 import Hit.Repository.Directory
 import Hit.Repository
 import Hit.Repository.Config

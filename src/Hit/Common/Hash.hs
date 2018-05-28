@@ -1,4 +1,4 @@
-module Hit.Objects.Hash (
+module Hit.Common.Hash (
     calculateHash,
     Hash,
     packHash,

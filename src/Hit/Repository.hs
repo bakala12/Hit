@@ -12,8 +12,6 @@ import System.Directory
 import System.IO.Error
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
--- import qualified Data.List.Split as S
--- import qualified Data.String.Utils as U
 
 getRepositoryDirectory :: ExIO FilePath
 getRepositoryDirectory = secureFileOperation getCurrentDirectory
