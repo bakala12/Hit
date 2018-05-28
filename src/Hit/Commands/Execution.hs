@@ -5,18 +5,18 @@ import Control.Monad.Trans.Except
 import Hit.Commands.Data
 import Hit.Repository.Initialization
 import Control.Monad.Trans.Class
-import Hit.Snapshot.Commit
+import Hit.Repository.Commit
 import Hit.Repository.References
 import Hit.Objects hiding (message)
 import Hit.Commands.Print
-import Hit.Snapshot.Changes
-import Hit.Snapshot.Checkout 
+import Hit.Repository.Changes
+import Hit.Repository.Checkout 
 import Hit.Repository.Config
 import Hit.Commands.Help
 import Hit.Repository.Log
-import Hit.Snapshot.Diff
-import Hit.Snapshot.Merge
-import Hit.Snapshot.Reset
+import Hit.Repository.Diff
+import Hit.Repository.Merge
+import Hit.Repository.Reset
 
 executeInitCommand :: ExIO ()
 executeInitCommand = isInitialized >>= (\b -> if b 

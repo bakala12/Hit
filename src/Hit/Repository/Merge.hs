@@ -1,26 +1,21 @@
-module Hit.Snapshot.Merge where
+module Hit.Repository.Merge where
 
 import Hit.Common.Data
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
 import Hit.Repository.References
-import Hit.Snapshot.Changes
-import Hit.Snapshot.Diff
+import Hit.Repository.Changes
+import Hit.Repository.Diff
 import Hit.Repository
 import Hit.Common.List
 import Hit.Objects
 import Control.Monad
 import Hit.Common.File
 import Data.String.Builder
-import Hit.Snapshot.Directory
-import Hit.Snapshot.TreeCompare
-import Hit.Snapshot.Commit
-
-data MergeConflict = RemovedConflict FilePath | ModifiedConflict FilePath
-
-instance Show MergeConflict where
-    show (RemovedConflict p) = "Conflict -> Removed file: "++p++" -> file was not removed, remove it manually if needed"
-    show (ModifiedConflict p) = "Conflict -> Modified file: "++p++" -> file was modified, confict markers added"
+import Hit.Repository.Directory
+import Hit.Repository.TreeCompare
+import Hit.Repository.Commit
+import Hit.Repository.Data
 
 applyNewFile :: FilePath -> Tree -> ExIO ()
 applyNewFile path tree = findFileInTree path tree >>= return . fileContent >>= createFileWithParentDirectories path

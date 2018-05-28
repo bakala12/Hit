@@ -1,14 +1,15 @@
-module Hit.Snapshot.TreeCompare where
+module Hit.Repository.TreeCompare where
 
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Class
 import Hit.Common.Data
-import Hit.Snapshot.Changes
+import Hit.Repository.Changes
 import Hit.Objects
 import Hit.Common.List
 import Hit.Objects.Store
 import Hit.Repository
 import Hit.Repository.References
+import Hit.Repository.Data
 
 getNewFilesTree' :: FilePath -> Tree -> ExIO [Change]
 getNewFilesTree' path tree = (return $ entries tree) >>= concatMapM (\e -> convertNew' (path++"/"++(entryName e)) e)

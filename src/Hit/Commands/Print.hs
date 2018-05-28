@@ -3,11 +3,11 @@ module Hit.Commands.Print where
 import Hit.Common.Data
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
-import Hit.Snapshot.Changes
 import Hit.Repository.References
 import Control.Monad
 import Data.Algorithm.DiffOutput
-import Hit.Snapshot.Merge
+import Hit.Repository.Merge
+import Hit.Repository.Data
 
 printChangesHelper :: String -> [Change] -> ExIO ()
 printChangesHelper header ch = (lift $ putStrLn header) >> mapM (lift . putStrLn . show) ch >> (lift $ putStrLn "")

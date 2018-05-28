@@ -11,31 +11,7 @@ import Hit.Common.List
 import Data.String.Builder
 import Hit.Common.Time
 import Data.List
-
-data LogEntry = LogEntry {
-    commitHash :: Hash,
-    commitAuthor :: CommitAuthor,
-    commitDate :: String,
-    commitMessage :: String 
-} deriving Eq
-
-logEntryToString :: LogEntry -> Builder
-logEntryToString e = do{
-    literal "Commit: ";
-    literal $ commitHash e;
-    literal "\n";
-    literal "Author: ";
-    literal $ show $ commitAuthor e;
-    literal "\n";
-    literal "Date: ";
-    literal (maybe "" id $ toPrettyUnixDate $ commitDate e);
-    literal "\n\n";
-    literal $ commitMessage e;
-    literal "\n";
-}
-
-instance Show LogEntry where
-    show e = build $ logEntryToString e    
+import Hit.Repository.Data  
 
 commitToLogEntry :: Commit -> LogEntry
 commitToLogEntry commit = LogEntry {

@@ -1,4 +1,4 @@
-module Hit.Snapshot.Directory where
+module Hit.Repository.Directory where
 
 import Hit.Common.Data
 import Hit.Common.File

@@ -1,39 +1,16 @@
-module Hit.Snapshot.Changes where
+module Hit.Repository.Changes where
 
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
 import Hit.Common.Data
 import Hit.Objects
 import Hit.Repository
-import Hit.Snapshot.Directory
+import Hit.Repository.Directory
 import Hit.Repository.References
 import Hit.Common.File
 import Hit.Common.List
 import Hit.Objects.Store
-
-data Change = Modified FilePath | New FilePath | Removed FilePath deriving Eq
-
-instance Show Change where
-    show (Modified p) = "Modified file: "++p
-    show (New p) = "New file: "++p
-    show (Removed p) = "Removed file: "++p
-
-isNew :: Change -> Bool
-isNew (New _) = True
-isNew _ = False
-
-isRemoved :: Change -> Bool
-isRemoved (Removed _) = True
-isRemoved _ = False
-
-isModified :: Change -> Bool
-isModified (Modified _) = True
-isModified _ = False
-
-getPath :: Change -> FilePath
-getPath (New p) = p
-getPath (Removed p) = p
-getPath (Modified p) = p
+import Hit.Repository.Data
 
 -- Filtering non changed files
 compareEntries :: (Eq a) => (DirectoryEntry -> a) -> DirectoryEntry -> DirectoryEntry -> Bool
@@ -62,7 +39,6 @@ getNonIdentical (x:xs) l2 = if r
 --End FilteringNonChangedFiles
 
 --Matching directory entries
-data MatchingEntry = Matching FilePath DirectoryEntry DirectoryEntry | NewEntry FilePath DirectoryEntry | RemovedEntry FilePath DirectoryEntry deriving Show
 
 matchBy :: (DirectoryEntry -> Bool) -> [DirectoryEntry] -> (Maybe DirectoryEntry, [DirectoryEntry])
 matchBy f list = foldl helper (Nothing, []) list

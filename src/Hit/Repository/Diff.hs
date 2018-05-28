@@ -1,4 +1,4 @@
-module Hit.Snapshot.Diff where
+module Hit.Repository.Diff where
 
 import Hit.Common.Data
 import Control.Monad.Trans.Class
@@ -7,7 +7,7 @@ import Data.Algorithm.Diff
 import Data.Algorithm.DiffOutput
 import Hit.Repository
 import Hit.Repository.References
-import Hit.Snapshot.Directory
+import Hit.Repository.Directory
 import Hit.Objects
 import Hit.Common.File
 

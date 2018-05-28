@@ -1,7 +1,8 @@
 module Hit.Repository.Config (
     getPathToConfig,
     getFromConfig,
-    putToConfig
+    putToConfig,
+    defaultEmptyFromConfig
 ) where
 
 import Control.Monad.Trans.Except
@@ -11,6 +12,7 @@ import Hit.Common.File
 import Data.String.Utils
 import Data.List
 import Hit.Common.File
+import Data.Maybe
 
 getPathToConfig :: ExIO FilePath
 getPathToConfig = getHitDirectoryPath >>= return . (++ ".hitconfig")
@@ -44,3 +46,6 @@ writeConfig content = do{
 putToConfig :: String -> String -> ExIO ()
 putToConfig key value = getPathToConfig >>= readWholeFile >>= return . lines >>= (setValue key value)
     >>= return . combineLines >>= writeConfig
+
+defaultEmptyFromConfig :: String -> ExIO String
+defaultEmptyFromConfig key = getFromConfig key >>= return . (maybe "" id)

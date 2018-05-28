@@ -1,13 +1,13 @@
-module Hit.Snapshot.Reset where
+module Hit.Repository.Reset where
 
 import Hit.Common.Data
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Class
 import Hit.Repository.References
-import Hit.Snapshot.Directory
+import Hit.Repository.Directory
 import Hit.Common.File
 import Hit.Repository
-import Hit.Snapshot.Checkout
+import Hit.Repository.Checkout
 import Hit.Objects
 import Control.Applicative
 

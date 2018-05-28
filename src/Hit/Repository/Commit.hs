@@ -1,19 +1,16 @@
-module Hit.Snapshot.Commit where
+module Hit.Repository.Commit where
 
 import Hit.Common.Data
 import Control.Monad.Trans.Except
 import Hit.Objects
 import Hit.Objects.Store
-import Hit.Snapshot.Directory
+import Hit.Repository.Directory
 import Hit.Repository
 import Hit.Repository.Config
 import Hit.Common.Time
 import Hit.Repository.References
 import Data.Maybe
 import Control.Monad
-
-defaultEmptyFromConfig :: String -> ExIO String
-defaultEmptyFromConfig key = getFromConfig key >>= return . (maybe "" id)
 
 getAuthor :: ExIO CommitAuthor
 getAuthor = do{
