@@ -48,3 +48,8 @@ changeBranch branch = doesBranchExist branch >>= (\r -> if r then return () else
     else return ()) >> getRepositoryChanges >>= (\r -> if r == [] 
         then makeBranchCheckout branch >> changeCurrentBranch branch 
         else throwE "Your directory has changes that will be lost after checkout. Commit them first. Checkout aborted")
+
+changeToCommit :: Hash -> ExIO ()
+changeToCommit hash = getRepositoryChanges >>= (\r -> if r == [] 
+    then getFullHash hash >>= (\h -> makeHashCheckout h >> return h) >>= writeCommitDeteachedHead
+    else throwE "Your directory has changes that will be lost after checkout. Commit them first. Checkout aborted")

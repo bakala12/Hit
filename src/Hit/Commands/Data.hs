@@ -22,6 +22,7 @@ data HitCommandType = InitCommandType |
                    MergeCommandType |
                    ResetFileCommandType |
                    ResetAllCommandType |
+                   CheckoutCommitCommandType |
                    InvalidCommandType
     deriving Show
 
@@ -43,7 +44,8 @@ keywordToCommandTypeMap = M.fromList [
     ("diffc", CommittedFileDiffCommandType),
     ("merge", MergeCommandType),
     ("reset", ResetFileCommandType),
-    ("resetall", ResetAllCommandType)]
+    ("resetall", ResetAllCommandType),
+    ("checkoutc", CheckoutCommitCommandType)]
 
 readCommandType :: String -> HitCommandType
 readCommandType str = M.findWithDefault InvalidCommandType str keywordToCommandTypeMap
@@ -65,6 +67,7 @@ data HitCommand = InitCommand |
                   MergeCommand Branch |
                   ResetFileCommand FilePath |
                   ResetAllCommand |
+                  CheckoutCommitCommand Hash |
                   InvalidCommand
     deriving Show
 
@@ -92,6 +95,7 @@ getParametersForCommand CurrentFileDiffCommandType = ["filePath"]
 getParametersForCommand CommittedFileDiffCommandType = ["filePath", "commitHash", "commitHash"]
 getParametersForCommand MergeCommandType = ["branch"]
 getParametersForCommand ResetFileCommandType = ["filePath"]
+getParametersForCommand CheckoutCommitCommandType = ["commitHash"]
 getParametersForCommand _ = []
 
 commandDescribtions :: M.Map String String
@@ -112,4 +116,5 @@ commandDescribtions = M.fromList [
     ("diffc", "Compares file versions in two given commits"),
     ("merge", "Merges a given branch to a current one"),
     ("reset", "Resets changes made in a given file"),
-    ("resetall", "Resets all changes in working directory")]
+    ("resetall", "Resets all changes in working directory"),
+    ("checkoutc", "Changes repository state to like on commit with the given hash")]

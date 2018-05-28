@@ -45,6 +45,9 @@ writeCommit hash = do {
         _ -> getHitDirectoryPath >>= return . (++"head") >>= (\p -> writeWholeFile p hash) 
 }
 
+writeCommitDeteachedHead :: Hash -> ExIO ()
+writeCommitDeteachedHead hash = getHitDirectoryPath >>= return . (++"head") >>= (\p -> writeWholeFile p hash)
+
 listBranches :: ExIO [Branch]
 listBranches = getPathToRefs >>= getDirectoryEntries
 

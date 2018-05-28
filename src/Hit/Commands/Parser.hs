@@ -63,7 +63,8 @@ parseParameters CommittedFileDiffCommandType = do{
 }
 parseParameters MergeCommandType = space >> stringParam >>= return . MergeCommand
 parseParameters ResetFileCommandType = space >> quotedStringParam >>= return . ResetFileCommand
-parseParameters ResetAllCommandType = return ResetAllCommand 
+parseParameters ResetAllCommandType = return ResetAllCommand
+parseParameters CheckoutCommitCommandType = space >> stringParam >>= return . CheckoutCommitCommand 
 parseParameters _ = return InvalidCommand
 
 commandParser :: GenParser Char () HitCommand

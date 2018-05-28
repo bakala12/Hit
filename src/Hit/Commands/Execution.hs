@@ -89,6 +89,9 @@ executeResetFileCommand path = checkIfRepositoryAndExecute (resetChangesInFile p
 executeResetAllCommand :: ExIO ()
 executeResetAllCommand = checkIfRepositoryAndExecute resetAllChanges
 
+executeCheckoutCommitCommand:: Hash -> ExIO ()
+executeCheckoutCommitCommand commitHash = checkIfRepositoryAndExecute (changeToCommit commitHash >> (lift $ putStrLn "Checkout made successfully. You are in deteached head mode"))
+
 executeHitCommand :: HitCommand -> ExIO ()
 executeHitCommand InitCommand = executeInitCommand
 executeHitCommand (CommitCommand message) = executeCommitCommand message
@@ -107,4 +110,5 @@ executeHitCommand (CommittedFileDiffCommand path hash1 hash2) = executeCommitted
 executeHitCommand (MergeCommand branch) = executeMergeCommand branch
 executeHitCommand (ResetFileCommand path) = executeResetFileCommand path
 executeHitCommand ResetAllCommand = executeResetAllCommand
+executeHitCommand (CheckoutCommitCommand commitHash) = executeCheckoutCommitCommand commitHash
 executeHitCommand _ = lift $ putStrLn "Invalid command"
