@@ -159,3 +159,8 @@ getRepositoryChanges = do{
     lastSaved <- getCurrentBranchVersion;
     compareDirectoryTrees p current lastSaved;
 }
+
+getStatus :: ExIO [Change]
+getStatus = isInMergeState >>= (\r -> if r 
+    then lift $ putStrLn "You are in merge mode. Commit your changes to finish merging"
+    else return ()) >> getRepositoryChanges

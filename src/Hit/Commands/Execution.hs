@@ -39,7 +39,7 @@ executeCommitCommand msg = checkIfRepositoryAndExecute (getRepositoryChanges >>=
         }))
 
 executeStatusCommand :: ExIO ()
-executeStatusCommand = checkIfRepositoryAndExecute (getRepositoryChanges >>= printChangesSmoothly)
+executeStatusCommand = checkIfRepositoryAndExecute (getStatus >>= printChangesSmoothly)
 
 executeNewBranchCommand :: Branch -> ExIO ()
 executeNewBranchCommand branch = checkIfRepositoryAndExecute (createBranch branch >>= (\b -> if b 
