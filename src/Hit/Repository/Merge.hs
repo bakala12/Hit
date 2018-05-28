@@ -32,37 +32,23 @@ conflictFileBuilder currentBranch mergedBranch version1 version2 = do{
     literal mergedBranch;
 }
 
-writeDiff :: FilePath -> Branch -> Blob -> Blob -> ExIO ()
-writeDiff path name current branch = getCurrentBranch >>= (\b -> return $ build $ conflictFileBuilder b name (fileContent current) (fileContent branch)) >>= writeWholeFile path
+-- writeDiff :: FilePath -> Branch -> Blob -> Blob -> ExIO ()
+-- writeDiff path name current branch = getCurrentBranch >>= (\b -> return $ build $ conflictFileBuilder b name (fileContent current) (fileContent branch)) >>= writeWholeFile path
 
-applyModifiedFile :: Branch -> FilePath -> Tree -> Tree -> ExIO ()
-applyModifiedFile mergedBranch path current branch = do{
-    b1 <- findFileInTree path current;
-    b2 <- findFileInTree path branch;
-    writeDiff path mergedBranch b1 b2
-}
+-- applyModifiedFile :: Branch -> FilePath -> Tree -> Tree -> ExIO ()
+-- applyModifiedFile mergedBranch path current branch = do{
+--     b1 <- findFileInTree path current;
+--     b2 <- findFileInTree path branch;
+--     writeDiff path mergedBranch b1 b2
+-- }
 
 applyChange :: Branch -> Tree -> Tree -> [MergeConflict] -> Change -> ExIO [MergeConflict]
 applyChange name current branch c (New p) = applyNewFile p branch >> return c --addFile, no conflict
 applyChange name current branch c (Removed p) = return (c++[RemovedConflict p]) --conflict Removed
-applyChange name current branch c (Modified p) = applyModifiedFile name p current branch >> return (c++[ModifiedConflict p]) --conflict Modified
+applyChange name current branch c (Modified p) = return [] --applyModifiedFile name p current branch >> return (c++[ModifiedConflict p]) --conflict Modified
 
 applyChanges :: Branch -> Tree -> Tree -> [Change] -> ExIO [MergeConflict]
 applyChanges name current branch changes = foldM (applyChange name current branch) [] changes
-
-mergeBranch :: Branch -> ExIO [MergeConflict]
-mergeBranch branch = do{
-    current <- getCurrentBranch;
-    lastCurrent <- getBranchCommitHash current;
-    lastBranch <- getBranchCommitHash branch;
-    currentTree <- getVersion lastCurrent;
-    branchTree <- getVersion lastBranch;
-    path <- getRepositoryDirectory;
-    changes <- compareTrees path branchTree currentTree;
-    if changes == []
-        then (lift $ putStrLn "No changes - merge already done") >> return []
-        else finishMerge branch current currentTree branchTree changes [lastCurrent, lastBranch]
-}    
 
 finishMerge :: Branch -> Branch -> Tree -> Tree -> [Change] -> [Hash] -> ExIO [MergeConflict]
 finishMerge branch current currentTree branchTree changes parents = do{
@@ -76,3 +62,21 @@ finishMerge branch current currentTree branchTree changes parents = do{
 makeMergeCommitIfNoConflicts :: Branch -> Branch -> [Hash] -> [MergeConflict] -> ExIO (Maybe Hash)
 makeMergeCommitIfNoConflicts current branch parents [] = createCommitWithParents ("Merge branch "++branch++" into "++current) parents >>= return . hashObject >>= (\h -> writeCommit h >> (return $ Just h))
 makeMergeCommitIfNoConflicts _ _ _ list = return Nothing
+
+mergeBranchHelper :: Branch -> Branch -> ExIO [MergeConflict]
+mergeBranchHelper current branch = do{
+    lastCurrent <- getBranchCommitHash current;
+    lastBranch <- getBranchCommitHash branch;
+    currentTree <- getVersion lastCurrent;
+    branchTree <- getVersion lastBranch;
+    path <- getRepositoryDirectory;
+    changes <- compareTrees path branchTree currentTree;
+    if changes == []
+        then (lift $ putStrLn "No changes - merge already done") >> return []
+        else finishMerge branch current currentTree branchTree changes [lastCurrent, lastBranch]
+}    
+
+mergeBranch :: Branch -> ExIO [MergeConflict]
+mergeBranch b = getCurrentBranch >>= (\c -> case c of
+    Nothing -> (lift $ putStrLn "Merge is not allowed in deteached head mode") >> return []
+    (Just curr) -> mergeBranchHelper curr b)

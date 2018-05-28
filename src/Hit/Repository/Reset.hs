@@ -21,4 +21,4 @@ resetChangesInFile path = do{
 }
 
 resetAllChanges :: ExIO ()
-resetAllChanges = getCurrentBranch >>= makeBranchCheckout
+resetAllChanges = getLastCommitHash >>= makeHashCheckout

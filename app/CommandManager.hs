@@ -13,7 +13,9 @@ import Hit.Repository
 putPrompt :: String -> ExIO String
 putPrompt prompt = do{
     rep <- getRepositoryDirectory;
-    br <- catchE (getCurrentBranch >>= return . ("("++) . (++")")) (const $ return "");
+    br <- catchE (getCurrentBranch >>= (\b -> case b of
+        (Just x) -> return ("("++x++")")
+        Nothing -> return "<<deteached head>>")) (const $ return "");
     return (rep++" "++br++" "++prompt);
 }
 

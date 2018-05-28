@@ -15,8 +15,13 @@ import Data.String.Utils
 getPathToRefs :: ExIO FilePath
 getPathToRefs = getHitDirectoryPath >>= return . (++"refs/")
 
-getCurrentBranch :: ExIO Branch
-getCurrentBranch = getHitDirectoryPath >>= return . (++"head") >>= readWholeFile
+getCurrentBranch :: ExIO (Maybe Branch)
+getCurrentBranch = getHitDirectoryPath >>= return . (++"head") >>= readWholeFile >>= (\c -> if startswith "refs/" c 
+    then return $ Just $ skip 5 c --path to branch
+    else return Nothing) --hash (detached head)
+
+isInDeteachedMode :: ExIO Bool 
+isInDeteachedMode = (maybe True (const False)) <$> getCurrentBranch
 
 getBranchCommitHash :: Branch -> ExIO Hash
 getBranchCommitHash branch = getPathToRefs >>= return . (++ branch) >>= readWholeFile
@@ -32,13 +37,12 @@ getVersion :: Hash -> ExIO Tree
 getVersion commitHash = if commitHash == "" then return $ Tree { entries = []} else getPathToObjects >>= return . (++(splitPath commitHash)) >>= restoreCommit
     >>= return . tree >>= getTreeVersion . splitPath
 
-getCurrentBranchVersion :: ExIO Tree
-getCurrentBranchVersion = getCurrentBranch >>= getBranchCommitHash >>= (\r -> if length r == 40 then getVersion r else return $ Tree {entries = []})
-
 writeCommit :: Hash -> ExIO ()
 writeCommit hash = do {
     branch <- getCurrentBranch; 
-    getPathToRefs >>= return . (++("/"++ branch)) >>= (\p -> writeWholeFile p hash) 
+    case branch of
+        (Just b) -> getPathToRefs >>= return . (++("/"++ b)) >>= (\p -> writeWholeFile p hash)
+        _ -> getHitDirectoryPath >>= return . (++"head") >>= (\p -> writeWholeFile p hash) 
 }
 
 listBranches :: ExIO [Branch]
@@ -48,7 +52,12 @@ doesBranchExist :: Branch -> ExIO Bool
 doesBranchExist branch = listBranches >>= return . (elem branch)
 
 getLastCommitHash :: ExIO Hash
-getLastCommitHash = getCurrentBranch >>= getBranchCommitHash
+getLastCommitHash = getCurrentBranch >>= (\b -> case b of
+    (Just br) -> getPathToRefs >>= return . (++br) >>= readWholeFile
+    Nothing -> getHitDirectoryPath >>= return . (++"head") >>= readWholeFile)
+
+getCurrentBranchVersion :: ExIO Tree
+getCurrentBranchVersion = getLastCommitHash >>= (\r -> if length r == 40 then getVersion r else return $ Tree {entries = []})
 
 createBranch :: Branch -> ExIO Bool
 createBranch branch = doesBranchExist branch >>= (\r -> if r 
@@ -61,7 +70,7 @@ createBranch branch = doesBranchExist branch >>= (\r -> if r
     })
 
 isCurrentBranch :: Branch -> ExIO Bool
-isCurrentBranch branch = getCurrentBranch >>= return . (branch ==)
+isCurrentBranch branch = (maybe False (\b -> b == branch)) <$> getCurrentBranch 
 
 removeBranch :: Branch -> ExIO Bool
 removeBranch branch = doesBranchExist branch >>= (\r -> if r
@@ -75,7 +84,7 @@ removeBranch branch = doesBranchExist branch >>= (\r -> if r
     else return False)
 
 changeCurrentBranch :: Branch -> ExIO ()
-changeCurrentBranch branch = getHitDirectoryPath >>= return . (++"head") >>= (\p -> writeWholeFile p branch)
+changeCurrentBranch branch = getHitDirectoryPath >>= return . (++"head") >>= (\p -> writeWholeFile p ("refs/"++branch))
 
 getTreeFromHash :: Hash -> ExIO Tree
 getTreeFromHash hash = getPathToObject hash >>= restoreTree

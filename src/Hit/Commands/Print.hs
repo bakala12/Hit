@@ -25,7 +25,9 @@ printChangesSmoothlyHelper [] = (lift $ putStrLn "Nothing to commit - working di
 printChangesSmoothlyHelper ch = printChanges "Modified: " isModified ch >> printChanges "New files: " isNew ch >> printChanges "Removed files:" isRemoved ch
 
 printChangesSmoothly :: [Change] -> ExIO ()
-printChangesSmoothly list = getCurrentBranch >>= (\b -> (lift $ putStrLn ("On branch "++b++":"))) >> printChangesSmoothlyHelper list
+printChangesSmoothly list = getCurrentBranch >>= (\b -> case b of 
+    (Just br) -> (lift $ putStrLn ("On branch "++br++":"))
+    _ -> (lift $ putStrLn ("You are in deteached head state. Changes: "))) >> printChangesSmoothlyHelper list
 
 printEachInLine :: [String] -> ExIO ()
 printEachInLine [] = return ()

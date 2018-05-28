@@ -20,3 +20,7 @@ singleElement _ = Nothing
 
 findOnlyMatching :: (b -> a -> Bool) -> b -> [a] -> Maybe a
 findOnlyMatching f b list = singleElement $ filter (f b) list
+
+skip :: Int -> [a] -> [a]
+skip _ [] = []
+skip n l@(x:xs) = if n <= 0 then l else skip (n-1) xs  

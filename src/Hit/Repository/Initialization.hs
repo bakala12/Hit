@@ -11,7 +11,7 @@ initRepository = do{
     createEmptyDirectory path;
     createNewFile path ".hitconfig" "username=User\nemail=email@example.com";
     createNewFile path ".hitlog" "hit init";
-    createNewFile path "head" "master";
+    createNewFile path "head" "refs/master";
     createEmptyDirectory (path++"/objects");
     createEmptyDirectory (path++"/refs");
     createNewFile path "refs/master" ""
