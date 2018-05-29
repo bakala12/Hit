@@ -34,7 +34,7 @@ convertNew' path e = do{
 }
 
 convertMatching' :: FilePath -> DirectoryEntry -> DirectoryEntry -> ExIO [Change]
-convertMatching' path current last =  if ((permissions current) == "040000") 
+convertMatching' path current last = if ((permissions current) == "040000") 
     then getDirectoryChanges' path (entryHash current) (entryHash last)
     else return [Modified path]
 
@@ -48,7 +48,7 @@ getDirectoryChanges' path currentHash lastHash = do{
 convertToChanges' :: MatchingEntry -> ExIO [Change]
 convertToChanges' (NewEntry p e) = convertNew' (p++"/"++(entryName e)) e
 convertToChanges' (RemovedEntry p e) = convertRemoved (p++"/"++(entryName e)) e
-convertToChanges' (Matching p branch current) = convertMatching' p branch current
+convertToChanges' (Matching p branch current) = convertMatching' (p++"/"++(entryName branch)) branch current
 
 convertChanges' :: [MatchingEntry] -> ExIO [Change]
 convertChanges' = concatMapM convertToChanges' 

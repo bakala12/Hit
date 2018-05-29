@@ -26,33 +26,33 @@ conflictFileBuilder currentBranch mergedBranch version1 version2 = do{
     literal currentBranch;
     literal "\n";
     literal version1;
-    literal "=======\n";
+    literal "\n=======\n";
     literal version2;
     literal "\n>>>>>>> ";
     literal mergedBranch;
 }
 
--- writeDiff :: FilePath -> Branch -> Blob -> Blob -> ExIO ()
--- writeDiff path name current branch = getCurrentBranch >>= (\b -> return $ build $ conflictFileBuilder b name (fileContent current) (fileContent branch)) >>= writeWholeFile path
+writeDiff :: FilePath -> Branch -> Branch -> Blob -> Blob -> ExIO ()
+writeDiff path currname name current branch = (return $ build $ conflictFileBuilder currname name (fileContent current) (fileContent branch)) >>= writeWholeFile path
 
--- applyModifiedFile :: Branch -> FilePath -> Tree -> Tree -> ExIO ()
--- applyModifiedFile mergedBranch path current branch = do{
---     b1 <- findFileInTree path current;
---     b2 <- findFileInTree path branch;
---     writeDiff path mergedBranch b1 b2
--- }
+applyModifiedFile :: Branch -> Branch -> FilePath -> Tree -> Tree -> ExIO ()
+applyModifiedFile currentBranch mergedBranch path current branch = do{
+    b1 <- findFileInTree path current;
+    b2 <- findFileInTree path branch;
+    writeDiff path currentBranch mergedBranch b1 b2
+}
 
-applyChange :: Branch -> Tree -> Tree -> [MergeConflict] -> Change -> ExIO [MergeConflict]
-applyChange name current branch c (New p) = applyNewFile p branch >> return c --addFile, no conflict
-applyChange name current branch c (Removed p) = return (c++[RemovedConflict p]) --conflict Removed
-applyChange name current branch c (Modified p) = return [] --applyModifiedFile name p current branch >> return (c++[ModifiedConflict p]) --conflict Modified
+applyChange :: Branch -> Branch -> Tree -> Tree -> [MergeConflict] -> Change -> ExIO [MergeConflict]
+applyChange _ name current branch c (New p) = applyNewFile p branch >> return c --addFile, no conflict
+applyChange _ name current branch c (Removed p) = return (c++[RemovedConflict p]) --conflict Removed
+applyChange currname name current branch c (Modified p) = applyModifiedFile currname name p current branch >> return (c++[ModifiedConflict p]) --conflict Modified
 
-applyChanges :: Branch -> Tree -> Tree -> [Change] -> ExIO [MergeConflict]
-applyChanges name current branch changes = foldM (applyChange name current branch) [] changes
+applyChanges :: Branch -> Branch -> Tree -> Tree -> [Change] -> ExIO [MergeConflict]
+applyChanges currname name current branch changes = foldM (applyChange currname name current branch) [] changes
 
 finishMerge :: Branch -> Branch -> Tree -> Tree -> [Change] -> [Hash] -> ExIO [MergeConflict]
 finishMerge branch current currentTree branchTree changes parents = do{
-    conflicts <- applyChanges branch currentTree branchTree changes;
+    conflicts <- applyChanges current branch currentTree branchTree changes;
     m <- makeMergeCommitIfNoConflicts current branch parents conflicts;
     case m of
         (Just hash) -> (lift $ putStrLn ("Merge commit: "++hash)) >> return []
