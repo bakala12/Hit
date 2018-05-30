@@ -46,10 +46,16 @@ instance Show LogEntry where
     show e = build $ logEntryToString e  
 
 -- | Represents a base change in repository
-data MatchingEntry = Matching FilePath DirectoryEntry DirectoryEntry | NewEntry FilePath DirectoryEntry | RemovedEntry FilePath DirectoryEntry deriving Show
+data MatchingEntry = Matching FilePath DirectoryEntry DirectoryEntry -- ^ Given directory entries mathes (are the same)
+                    | NewEntry FilePath DirectoryEntry -- ^ Given directory entry is new
+                    | RemovedEntry FilePath DirectoryEntry -- ^ Given directory entry is removed
+                    deriving Show
 
 -- | Represents a change made on file in repository
-data Change = Modified FilePath | New FilePath | Removed FilePath deriving Eq
+data Change = Modified FilePath -- ^ The file is modified
+            | New FilePath -- ^ The file is newly added
+            | Removed FilePath -- ^ The file is removed
+            deriving Eq
 
 instance Show Change where
     show (Modified p) = "Modified file: "++p
