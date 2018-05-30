@@ -5,7 +5,7 @@ import Hit.Common.File
 import System.Environment
 import CommandManager
 import Control.Monad.Trans.Class
-import Hit.Repository
+import Hit.Common.Repository
 import Control.Monad.Trans.Except
 
 setDirectory :: [String] -> ExIO ()

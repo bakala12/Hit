@@ -5,10 +5,10 @@ import Control.Monad.Trans.Except
 import Hit.Objects
 import Hit.Store
 import Hit.Repository.Directory
-import Hit.Repository
-import Hit.Repository.Config
+import Hit.Common.Repository
+import Hit.Repository.General.Config
 import Hit.Common.Time
-import Hit.Repository.References
+import Hit.Repository.General.References
 import Data.Maybe
 import Control.Monad
 

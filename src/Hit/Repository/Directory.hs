@@ -7,11 +7,11 @@ import Control.Monad.Trans.Except
 import Hit.Objects
 import Hit.Common.Permissions
 import Control.Monad
-import Hit.Repository.Ignore
+import Hit.Repository.General.Ignore
 import Hit.Store
 import Hit.Common.List
-import Hit.Repository
-import Hit.Repository.References
+import Hit.Common.Repository
+import Hit.Repository.General.References
 
 getBlob :: FilePath -> ExIO Blob
 getBlob path = (readWholeFile path) >>= return . Blob
@@ -54,7 +54,7 @@ findFileInTreeHelper [] hash = return hash
 findFileInTreeHelper (x:xs) hash = do{
     tree <- getTreeFromHash hash;
     ent <- return $ entries tree;
-    m <- return $ findFirstMatching (\b a -> (((entryName a)++"/")==b) || (entryName a)==b) x ent;
+    m <- return $ findFirstMatching (\a -> (((entryName a)++"/")==x) || (entryName a)==x) ent;
     case m of
         Nothing -> throwE ("Cannot find "++x)
         (Just x) -> findFileInTreeHelper xs (entryHash x)

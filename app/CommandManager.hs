@@ -7,8 +7,8 @@ import Hit.Commands.Execution
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
 import System.IO
-import Hit.Repository.References
-import Hit.Repository
+import Hit.Repository.General.References
+import Hit.Common.Repository
 
 putPrompt :: String -> ExIO String
 putPrompt prompt = do{

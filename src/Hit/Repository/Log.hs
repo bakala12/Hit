@@ -4,14 +4,14 @@ import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
 import Hit.Common.Data
 import Hit.Objects
-import Hit.Repository
-import Hit.Repository.References
+import Hit.Common.Repository
+import Hit.Repository.General.References
 import Hit.Store
 import Hit.Common.List
 import Data.String.Builder
 import Hit.Common.Time
 import Data.List
-import Hit.Repository.Data  
+import Hit.Repository.General.Data  
 
 commitToLogEntry :: Commit -> LogEntry
 commitToLogEntry commit = LogEntry {

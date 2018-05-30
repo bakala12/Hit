@@ -1,9 +1,10 @@
-module Hit.Repository.References where
+-- | A module that provides functions to manage Hit references
+module Hit.Repository.General.References where
 
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
 import Hit.Common.Data
-import Hit.Repository
+import Hit.Common.Repository
 import Hit.Common.File
 import Hit.Objects
 import Hit.Store
@@ -12,11 +13,9 @@ import System.FilePath hiding (splitPath)
 import Hit.Common.List
 import Data.String.Utils
 
-getPathToRefs :: ExIO FilePath
-getPathToRefs = getHitDirectoryPath >>= return . (++"refs/")
-
+-- | Gets the current branch. Returns "Nothing" if repository is in deteached head mode
 getCurrentBranch :: ExIO (Maybe Branch)
-getCurrentBranch = getHitDirectoryPath >>= return . (++"head") >>= readWholeFile >>= (\c -> if startswith "refs/" c 
+getCurrentBranch = getPathToHead >>= readWholeFile >>= (\c -> if startswith "refs/" c 
     then return $ Just $ skip 5 c --path to branch
     else return Nothing) --hash (detached head)
 
@@ -102,7 +101,7 @@ getFullHash hash = do{
     name <- return $ takeFileName path;
     ent <- getDirectoryEntries dirPath;
     first <- return $ take 2 hash;
-    m <- return $ findOnlyMatching (startswith) name ent;
+    m <- return $ findOnlyMatching (startswith name) ent;
     case m of 
         Nothing -> throwE "Cannot file exactly one object defined by hash"
         (Just x) -> return (first++x)

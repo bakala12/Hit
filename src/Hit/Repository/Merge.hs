@@ -3,10 +3,10 @@ module Hit.Repository.Merge where
 import Hit.Common.Data
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
-import Hit.Repository.References
+import Hit.Repository.General.References
 import Hit.Repository.Changes
 import Hit.Repository.Diff
-import Hit.Repository
+import Hit.Common.Repository
 import Hit.Common.List
 import Hit.Objects
 import Control.Monad
@@ -15,7 +15,7 @@ import Data.String.Builder
 import Hit.Repository.Directory
 import Hit.Repository.TreeCompare
 import Hit.Repository.Commit
-import Hit.Repository.Data
+import Hit.Repository.General.Data
 
 applyNewFile :: FilePath -> Tree -> ExIO ()
 applyNewFile path tree = findFileInTree path tree >>= return . fileContent >>= createFileWithParentDirectories path

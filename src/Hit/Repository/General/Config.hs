@@ -1,5 +1,5 @@
-module Hit.Repository.Config (
-    getPathToConfig,
+-- | A module that exposes functions that allow to operate on Hit configuration (stored in .hit/.hitconfig file)
+module Hit.Repository.General.Config (
     getFromConfig,
     putToConfig,
     defaultEmptyFromConfig
@@ -7,15 +7,12 @@ module Hit.Repository.Config (
 
 import Control.Monad.Trans.Except
 import Hit.Common.Data
-import Hit.Repository
+import Hit.Common.Repository
 import Hit.Common.File
 import Data.String.Utils
 import Data.List
 import Hit.Common.File
 import Data.Maybe
-
-getPathToConfig :: ExIO FilePath
-getPathToConfig = getHitDirectoryPath >>= return . (++ ".hitconfig")
 
 getValue :: String -> [String] -> ExIO (Maybe String)
 getValue _ [] = return Nothing
@@ -25,6 +22,7 @@ getValue key (l:ls) = if startswith (key++['=']) l
         _ -> throwE "Wrong .hitconfig file entry"
     else getValue key ls
 
+-- Gets the config value for a given key. Returns Nothing if value for given key does not exist
 getFromConfig :: String -> ExIO (Maybe String)
 getFromConfig key = getPathToConfig >>= readWholeFile >>= return . lines >>= (getValue key)
 
@@ -43,9 +41,13 @@ writeConfig content = do{
     writeWholeFile path content
 }
 
-putToConfig :: String -> String -> ExIO ()
+-- Saves a given key and value in Hit configuration
+putToConfig :: String -- ^ Configuration key 
+            -> String -- ^ Configuration value
+            -> ExIO ()
 putToConfig key value = getPathToConfig >>= readWholeFile >>= return . lines >>= (setValue key value)
     >>= return . combineLines >>= writeConfig
 
+-- Gets the config value for a given key. Returns empty "String" if value for given key does not exist
 defaultEmptyFromConfig :: String -> ExIO String
 defaultEmptyFromConfig key = getFromConfig key >>= return . (maybe "" id)

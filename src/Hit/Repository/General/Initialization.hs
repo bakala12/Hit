@@ -1,10 +1,12 @@
-module Hit.Repository.Initialization where
+-- A module that exposes functions connected with Hit repository
+module Hit.Repository.General.Initialization where
 
 import Hit.Common.Data
 import Hit.Common.File
-import Hit.Repository
+import Hit.Common.Repository
 import Control.Monad.Trans.Except
 
+-- | Initializes a new empty Hit repository in the current directory
 initRepository :: ExIO ()
 initRepository = do{
     path <- getHitDirectoryPath;
@@ -17,5 +19,6 @@ initRepository = do{
     createNewFile path "refs/master" ""
 } 
 
+-- | Checks if the repository is initialized.
 isInitialized :: ExIO Bool
 isInitialized = getHitDirectoryPath >>= isDirectory

@@ -7,9 +7,9 @@ import Hit.Repository.Changes
 import Hit.Objects
 import Hit.Common.List
 import Hit.Store
-import Hit.Repository
-import Hit.Repository.References
-import Hit.Repository.Data
+import Hit.Common.Repository
+import Hit.Repository.General.References
+import Hit.Repository.General.Data
 
 getNewFilesTree' :: FilePath -> Tree -> ExIO [Change]
 getNewFilesTree' path tree = (return $ entries tree) >>= concatMapM (\e -> convertNew' (path++"/"++(entryName e)) e)

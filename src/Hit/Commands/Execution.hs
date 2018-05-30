@@ -3,15 +3,15 @@ module Hit.Commands.Execution where
 import Hit.Common.Data
 import Control.Monad.Trans.Except
 import Hit.Commands.Data
-import Hit.Repository.Initialization
+import Hit.Repository.General.Initialization
 import Control.Monad.Trans.Class
 import Hit.Repository.Commit
-import Hit.Repository.References
+import Hit.Repository.General.References
 import Hit.Objects hiding (message)
 import Hit.Commands.Print
 import Hit.Repository.Changes
 import Hit.Repository.Checkout 
-import Hit.Repository.Config
+import Hit.Repository.General.Config
 import Hit.Commands.Help
 import Hit.Repository.Log
 import Hit.Repository.Diff

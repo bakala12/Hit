@@ -5,8 +5,8 @@ import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
 import Data.Algorithm.Diff
 import Data.Algorithm.DiffOutput
-import Hit.Repository
-import Hit.Repository.References
+import Hit.Common.Repository
+import Hit.Repository.General.References
 import Hit.Repository.Directory
 import Hit.Objects
 import Hit.Common.File
@@ -24,7 +24,7 @@ getFileDiff path baseTree = do {
 }
 
 getDiffFromCurrentVersion :: FilePath -> ExIO [DiffOperation LineRange]
-getDiffFromCurrentVersion path = do{
+getDiffFromCurrentVersion path = do {
     p <- getRepositoryDirectory;
     lastSaved <- getCurrentBranchVersion;
     getFileDiff path lastSaved

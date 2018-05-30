@@ -4,15 +4,15 @@ import Hit.Common.Data
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
 import Hit.Objects
-import Hit.Repository.References
+import Hit.Repository.General.References
 import Hit.Repository.Changes
-import Hit.Repository
+import Hit.Common.Repository
 import Hit.Repository.Directory
 import Control.Monad
 import Hit.Common.File
 import Hit.Store
 import Hit.Common.List
-import Hit.Repository.Data
+import Hit.Repository.General.Data
 
 applyNewFile :: FilePath -> Tree -> ExIO ()
 applyNewFile path tree = findFileInTree path tree >>= return . fileContent >>= createFileWithParentDirectories path

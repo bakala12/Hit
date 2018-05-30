@@ -4,13 +4,13 @@ import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
 import Hit.Common.Data
 import Hit.Objects
-import Hit.Repository
+import Hit.Common.Repository
 import Hit.Repository.Directory
-import Hit.Repository.References
+import Hit.Repository.General.References
 import Hit.Common.File
 import Hit.Common.List
 import Hit.Store
-import Hit.Repository.Data
+import Hit.Repository.General.Data
 
 -- Filtering non changed files
 compareEntries :: (Eq a) => (DirectoryEntry -> a) -> DirectoryEntry -> DirectoryEntry -> Bool

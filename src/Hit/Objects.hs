@@ -63,8 +63,6 @@ instance HitObject Tree where
     objectType t = TreeType
     getContent t = "tree "++(show $ size t)++"\0"++(contentTree t)
 
-type Email = String
-
 data CommitAuthor = CommitAuthor{
     name :: String,
     email :: Email

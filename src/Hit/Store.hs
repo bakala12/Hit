@@ -4,7 +4,7 @@ import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
 import Hit.Common.Data
 import Hit.Common.File
-import Hit.Repository
+import Hit.Common.Repository
 import Hit.Objects
 import Hit.Common.Hash
 import Hit.Common.Compression

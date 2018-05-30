@@ -1,10 +1,25 @@
-module Hit.Repository.Data where
+-- | A module that provides some base datatypes used in Hit repository operations
+module Hit.Repository.General.Data (
+    LogEntry (LogEntry),
+    commitHash,
+    commitAuthor,
+    commitDate,
+    commitMessage,
+    MatchingEntry (NewEntry, RemovedEntry, Matching), 
+    Change (New, Modified, Removed),
+    isNew,
+    isRemoved,
+    isModified,
+    getPath,
+    MergeConflict (RemovedConflict, ModifiedConflict)
+)where
 
 import Data.String.Builder
 import Hit.Common.Data
 import Hit.Common.Time
 import Hit.Objects
-
+ 
+-- | Represents a single entry in commits history
 data LogEntry = LogEntry {
     commitHash :: Hash,
     commitAuthor :: CommitAuthor,
@@ -26,38 +41,46 @@ logEntryToString e = do{
     literal $ commitMessage e;
     literal "\n";
 }
-    
+
 instance Show LogEntry where
     show e = build $ logEntryToString e  
 
+-- | Represents a base change in repository
+data MatchingEntry = Matching FilePath DirectoryEntry DirectoryEntry | NewEntry FilePath DirectoryEntry | RemovedEntry FilePath DirectoryEntry deriving Show
+
+-- | Represents a change made on file in repository
 data Change = Modified FilePath | New FilePath | Removed FilePath deriving Eq
 
 instance Show Change where
     show (Modified p) = "Modified file: "++p
     show (New p) = "New file: "++p
     show (Removed p) = "Removed file: "++p
-    
+
+-- | Checks if the change is associated with new file  
 isNew :: Change -> Bool
 isNew (New _) = True
 isNew _ = False
-    
+
+-- | Checks if the change is associated with removed file 
 isRemoved :: Change -> Bool
 isRemoved (Removed _) = True
 isRemoved _ = False
-    
+  
+-- | Checks if the change is associated with modified file 
 isModified :: Change -> Bool
 isModified (Modified _) = True
 isModified _ = False
-    
+  
+-- | Gets the file path associated with that change
 getPath :: Change -> FilePath
 getPath (New p) = p
 getPath (Removed p) = p
 getPath (Modified p) = p
-    
-data MergeConflict = RemovedConflict FilePath | ModifiedConflict FilePath
-    
+  
+-- | Represents a merge conflict
+data MergeConflict = RemovedConflict FilePath -- ^ There is no file in merged branch version but it is on current branch
+                    | ModifiedConflict FilePath -- ^ THe file has been modified on merged branch 
+  
 instance Show MergeConflict where
     show (RemovedConflict p) = "Conflict -> Removed file: "++p++" -> file was not removed, remove it manually if needed"
     show (ModifiedConflict p) = "Conflict -> Modified file: "++p++" -> file was modified, confict markers added"
-
-data MatchingEntry = Matching FilePath DirectoryEntry DirectoryEntry | NewEntry FilePath DirectoryEntry | RemovedEntry FilePath DirectoryEntry deriving Show

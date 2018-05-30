@@ -3,10 +3,10 @@ module Hit.Repository.Reset where
 import Hit.Common.Data
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Class
-import Hit.Repository.References
+import Hit.Repository.General.References
 import Hit.Repository.Directory
 import Hit.Common.File
-import Hit.Repository
+import Hit.Common.Repository
 import Hit.Repository.Checkout
 import Hit.Objects
 import Control.Applicative
