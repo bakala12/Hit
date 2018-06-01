@@ -22,7 +22,7 @@ getValue key (l:ls) = if startswith (key++['=']) l
         _ -> throwE "Wrong .hitconfig file entry"
     else getValue key ls
 
--- Gets the config value for a given key. Returns Nothing if value for given key does not exist
+-- | Gets the config value for a given key. Returns Nothing if value for given key does not exist
 getFromConfig :: String -> ExIO (Maybe String)
 getFromConfig key = getPathToConfig >>= readWholeFile >>= return . lines >>= (getValue key)
 
@@ -41,13 +41,13 @@ writeConfig content = do{
     writeWholeFile path content
 }
 
--- Saves a given key and value in Hit configuration
+-- | Saves a given key and value in Hit configuration
 putToConfig :: String -- ^ Configuration key 
             -> String -- ^ Configuration value
             -> ExIO ()
 putToConfig key value = getPathToConfig >>= readWholeFile >>= return . lines >>= (setValue key value)
     >>= return . combineLines >>= writeConfig
 
--- Gets the config value for a given key. Returns empty "String" if value for given key does not exist
+-- | Gets the config value for a given key. Returns empty "String" if value for given key does not exist
 defaultEmptyFromConfig :: String -> ExIO String
 defaultEmptyFromConfig key = getFromConfig key >>= return . (maybe "" id)
