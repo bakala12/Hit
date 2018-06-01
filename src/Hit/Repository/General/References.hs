@@ -1,5 +1,20 @@
 -- | A module that provides functions to manage Hit references
-module Hit.Repository.General.References where
+module Hit.Repository.General.References (
+    getCurrentBranch,
+    isInDeteachedMode,
+    getCommitFromHash,
+    getTreeFromHash,
+    getLastCommitHash,
+    getCurrentBranchVersion,
+    getBranchCommitHash,
+    writeCommit,
+    writeCommitDeteachedHead,
+    getFullHash,
+    getVersion,
+    isInMergeState,
+    getMergeParents,
+    setMergeParents    
+)where
 
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
@@ -19,23 +34,24 @@ getCurrentBranch = getPathToHead >>= readWholeFile >>= (\c -> if startswith "ref
     then return $ Just $ skip 5 c --path to branch
     else return Nothing) --hash (detached head)
 
+-- | Checks if repository is in deteached head mode
 isInDeteachedMode :: ExIO Bool 
 isInDeteachedMode = (maybe True (const False)) <$> getCurrentBranch
 
+-- | Gets last commit for a given branch
 getBranchCommitHash :: Branch -> ExIO Hash
 getBranchCommitHash branch = getPathToRefs >>= return . (++ branch) >>= readWholeFile
-
-getTreeVersion :: Hash -> ExIO Tree
-getTreeVersion hash = getPathToObjects >>= return . (++hash) >>= restoreTree
 
 splitPath :: Hash -> FilePath
 splitPath (x:y:xs) = (x:y:'/':xs) 
 splitPath l = l
 
+-- | Gets "Tree" object associated with the given commit "Hash"
 getVersion :: Hash -> ExIO Tree
 getVersion commitHash = if commitHash == "" then return $ Tree { entries = []} else getPathToObjects >>= return . (++(splitPath commitHash)) >>= restoreCommit
-    >>= return . tree >>= getTreeVersion . splitPath
+    >>= return . tree >>= getTreeFromHash
 
+-- | Write a given commit hash to a current branch
 writeCommit :: Hash -> ExIO ()
 writeCommit hash = do {
     branch <- getCurrentBranch; 
@@ -44,56 +60,29 @@ writeCommit hash = do {
         _ -> getHitDirectoryPath >>= return . (++"head") >>= (\p -> writeWholeFile p hash) 
 }
 
+-- | Writes a given commit hash like a commit in deteached head mode
 writeCommitDeteachedHead :: Hash -> ExIO ()
 writeCommitDeteachedHead hash = getHitDirectoryPath >>= return . (++"head") >>= (\p -> writeWholeFile p hash)
 
-listBranches :: ExIO [Branch]
-listBranches = getPathToRefs >>= getDirectoryEntries
-
-doesBranchExist :: Branch -> ExIO Bool
-doesBranchExist branch = listBranches >>= return . (elem branch)
-
+-- | Gets last commit hash
 getLastCommitHash :: ExIO Hash
 getLastCommitHash = getCurrentBranch >>= (\b -> case b of
     (Just br) -> getPathToRefs >>= return . (++br) >>= readWholeFile
     Nothing -> getHitDirectoryPath >>= return . (++"head") >>= readWholeFile)
 
+-- | Gets "Tree" for current branch
 getCurrentBranchVersion :: ExIO Tree
 getCurrentBranchVersion = getLastCommitHash >>= (\r -> if length r == 40 then getVersion r else return $ Tree {entries = []})
 
-createBranch :: Branch -> ExIO Bool
-createBranch branch = doesBranchExist branch >>= (\r -> if r 
-    then return False
-    else do{
-        ref <- getPathToRefs;
-        last <- getLastCommitHash;
-        createNewFile ref branch last;
-        return True
-    })
-
-isCurrentBranch :: Branch -> ExIO Bool
-isCurrentBranch branch = (maybe False (\b -> b == branch)) <$> getCurrentBranch 
-
-removeBranch :: Branch -> ExIO Bool
-removeBranch branch = doesBranchExist branch >>= (\r -> if r
-    then do{
-        isCurr <- isCurrentBranch branch;
-        path <- getPathToRefs;
-        if isCurr
-            then throwE "Cannot remove current branch"
-            else removeExistingFile (path++branch) >> return True
-    }
-    else return False)
-
-changeCurrentBranch :: Branch -> ExIO ()
-changeCurrentBranch branch = getHitDirectoryPath >>= return . (++"head") >>= (\p -> writeWholeFile p ("refs/"++branch))
-
+-- | Gets tree from the given "Hash"
 getTreeFromHash :: Hash -> ExIO Tree
 getTreeFromHash hash = getPathToObject hash >>= restoreTree
 
+-- | Get commit from the given "Hash"
 getCommitFromHash :: Hash -> ExIO Commit
 getCommitFromHash hash = getPathToObject hash >>= restoreCommit
 
+-- | Finds full "Hash" for the given part if it is unique
 getFullHash :: Hash -> ExIO Hash
 getFullHash hash = do{
     path <- getPathToObject hash;
@@ -107,12 +96,15 @@ getFullHash hash = do{
         (Just x) -> return (first++x)
 }
 
+-- | Gives information whether repository is in merge state (state after merge with conflicts)
 isInMergeState :: ExIO Bool
 isInMergeState = getPathToMergeFile >>= isExistingFile
 
+-- | Gets future merge commit parents from Merge file
 getMergeParents :: ExIO [Hash]
 getMergeParents = getPathToMergeFile >>= readWholeFile >>= return . read
 
+-- | Sets future merge commit parents to Merge file
 setMergeParents :: [Hash] -> ExIO ()
 setMergeParents [] = getPathToMergeFile >>= (\p -> catchE (removeExistingFile p) (\e -> return ()))
 setMergeParents list = getPathToMergeFile >>= (\p -> writeWholeFile p $ show list) 

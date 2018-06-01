@@ -13,6 +13,7 @@ import Hit.Common.File
 import Hit.Store
 import Hit.Common.List
 import Hit.Repository.General.Data
+import Hit.Repository.General.Branch
 
 applyNewFile :: FilePath -> Tree -> ExIO ()
 applyNewFile path tree = findFileInTree path tree >>= return . fileContent >>= createFileWithParentDirectories path

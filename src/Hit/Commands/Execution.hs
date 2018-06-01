@@ -17,6 +17,7 @@ import Hit.Repository.Log
 import Hit.Repository.Diff
 import Hit.Repository.Merge
 import Hit.Repository.Reset
+import Hit.Repository.General.Branch
 
 executeInitCommand :: ExIO ()
 executeInitCommand = isInitialized >>= (\b -> if b 
