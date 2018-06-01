@@ -1,4 +1,7 @@
-module Hit.Repository.Merge where
+-- | A module responsible for merging two branches
+module Hit.Repository.Merge (
+    mergeBranch
+)where
 
 import Hit.Common.Data
 import Control.Monad.Trans.Class
@@ -76,6 +79,8 @@ mergeBranchHelper current branch = do{
         else finishMerge branch current currentTree branchTree changes [lastCurrent, lastBranch]
 }    
 
+-- | Merges a given branch version into the current branch. Returns a list of merge conflits. 
+-- If no conflicts merge commit is automatically created otherwise repository is set to merge state
 mergeBranch :: Branch -> ExIO [MergeConflict]
 mergeBranch b = getCurrentBranch >>= (\c -> case c of
     Nothing -> (lift $ putStrLn "Merge is not allowed in deteached head mode") >> return []

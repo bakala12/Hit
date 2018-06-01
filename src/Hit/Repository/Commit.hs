@@ -1,4 +1,8 @@
-module Hit.Repository.Commit where
+-- | A module that provides way to create commits in repository
+module Hit.Repository.Commit (
+    createCommitWithParents,
+    createCommit
+)where
 
 import Hit.Common.Data
 import Control.Monad.Trans.Except
@@ -19,6 +23,7 @@ getAuthor = do{
     return $ CommitAuthor {name = n, email = e}
 }
 
+-- | Creates a commit object with the given message and list of parents and strores it in a repository
 createCommitWithParents :: String -> [Hash] -> ExIO Commit
 createCommitWithParents commitMessage par = do{
     repo <- getRepositoryDirectory;
@@ -39,6 +44,7 @@ createCommitWithParents commitMessage par = do{
     return commit;
 }
 
+-- | Creates a commit with a given message and stores it in a repository (commit parent will be last commit from current branch)
 createCommit :: String -> ExIO Commit 
 createCommit msg = isInMergeState >>= (\b -> if b 
     then getMergeParents >>= (\p -> setMergeParents [] >> return p) >>= createCommitWithParents msg 

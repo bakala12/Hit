@@ -1,4 +1,8 @@
-module Hit.Repository.Diff where
+-- | A module that provides method to compare versions of files from various commits
+module Hit.Repository.Diff (
+    getDiffFromCurrentVersion,
+    getDiffBetweenCommits
+)where
 
 import Hit.Common.Data
 import Control.Monad.Trans.Class
@@ -23,6 +27,7 @@ getFileDiff path baseTree = do {
     return $ fileContentsDiff baseLines changedLines
 }
 
+-- | Gets differences in the given file between versions from last commit and working directory
 getDiffFromCurrentVersion :: FilePath -> ExIO [DiffOperation LineRange]
 getDiffFromCurrentVersion path = do {
     p <- getRepositoryDirectory;
@@ -39,6 +44,7 @@ getFileDiff' path baseTree changedTree = do {
     return $ fileContentsDiff baseLines changedLines
 }
 
+-- | Gets differences in the given file between two given commits
 getDiffBetweenCommits :: FilePath -> Hash -> Hash -> ExIO [DiffOperation LineRange]
 getDiffBetweenCommits path commit1Hash commit2Hash = do{
     hash1 <- getFullHash commit1Hash;

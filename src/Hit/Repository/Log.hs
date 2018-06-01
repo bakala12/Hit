@@ -1,4 +1,7 @@
-module Hit.Repository.Log where
+-- | A module that provides a method to getting commit history
+module Hit.Repository.Log (
+    getLog
+)where
 
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
@@ -47,6 +50,7 @@ toTimestamp e = maybe 0 id $ timestampToInt $ commitDate e
 sortByDate :: [LogEntry] -> [LogEntry]
 sortByDate = sortBy (\a b -> compare (toTimestamp b) (toTimestamp a))
 
+-- | Gets the given number of last commits in history for the current branch
 getLog :: Int -> ExIO [LogEntry]
 getLog depth = getLastCommitHash >>= getLogEntries newDepth [] >>= return . nub >>= return . sortByDate >>= return . (take newDepth)
     where 

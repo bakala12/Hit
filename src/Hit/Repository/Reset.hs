@@ -1,3 +1,4 @@
+-- | A module that provides method for reseting changes made in working directory
 module Hit.Repository.Reset where
 
 import Hit.Common.Data
@@ -11,6 +12,7 @@ import Hit.Repository.Checkout
 import Hit.Objects
 import Control.Applicative
 
+-- | Resets state of a given file to the state from last commit
 resetChangesInFile :: FilePath -> ExIO ()
 resetChangesInFile path = do{
     baseTree <- getCurrentBranchVersion;
@@ -20,5 +22,6 @@ resetChangesInFile path = do{
         (Just x) -> writeWholeFile path (fileContent x)
 }
 
+-- | Resets all changes made in working directory since last commit
 resetAllChanges :: ExIO ()
 resetAllChanges = getLastCommitHash >>= makeHashCheckout
