@@ -1,4 +1,12 @@
-module Hit.Store where
+-- A module that provides a way to store and restore Hit objects to and from files.
+module Hit.Store (
+    getPathToObject,
+    storeObject,
+    getHitObjectType,
+    restoreBlob,
+    restoreTree,
+    restoreCommit
+)where
 
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
@@ -17,9 +25,11 @@ splitFirstTwoAndCreate :: FilePath -> Hash -> ExIO (String)
 splitFirstTwoAndCreate path (x:y:xs) = createDirectoryIfNotExist (path++[x,y]) >> return (path++[x,y, '/']++xs)
 splitFirstTwoAndCreate _ _ = throwE "Incorrect hash - cannot create path"
 
+-- | Returns a path for the object with a given hash
 getPathToObject :: Hash -> ExIO FilePath
 getPathToObject hash = getPathToObjects >>= (\p -> splitFirstTwoAndCreate p hash) 
 
+-- | Stores a givent Hit object in a file
 storeObject :: (HitObject a) => a -> ExIO ()
 storeObject obj = do{
     hash <- return $ hashObject obj;
@@ -110,18 +120,22 @@ restoreObject path parser = (secureFileOperation $ B.readFile path) >>= return .
         return res
 })
     
+-- | Restores "Blob" object from the given file
 restoreBlob :: FilePath -> ExIO Blob
 restoreBlob path = restoreObject path (objectHeaderParser "blob" >> blobParser)
     
+-- | Restores "Tree" object from the given file
 restoreTree :: FilePath -> ExIO Tree
 restoreTree path = restoreObject path (objectHeaderParser "tree" >> treeParser)
     
+-- | Restores "Commit" object from the given file
 restoreCommit :: FilePath -> ExIO Commit
 restoreCommit path = restoreObject path (objectHeaderParser "commit" >> commitParser)
 
 objectTypeParser :: GenParser Char st (Maybe HitObjectType)
 objectTypeParser = readHitObjectType <$> (P.many (P.noneOf " \0\n"))
 
+-- | Restores object type from the given file
 getHitObjectType :: FilePath -> ExIO HitObjectType
 getHitObjectType path = (secureFileOperation $ B.readFile path) >>= return . decompressContent >>= (\cont -> do{
     pr <- return $ parse objectTypeParser "" cont;
