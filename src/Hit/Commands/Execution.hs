@@ -1,4 +1,7 @@
-module Hit.Commands.Execution where
+-- | A module that alows executing Hit commands
+module Hit.Commands.Execution (
+    executeHitCommand
+)where
 
 import Hit.Common.Data
 import Control.Monad.Trans.Except
@@ -93,6 +96,7 @@ executeResetAllCommand = checkIfRepositoryAndExecute resetAllChanges
 executeCheckoutCommitCommand:: Hash -> ExIO ()
 executeCheckoutCommitCommand commitHash = checkIfRepositoryAndExecute (changeToCommit commitHash >> (lift $ putStrLn "Checkout made successfully. You are in deteached head mode"))
 
+-- | Executes a given command
 executeHitCommand :: HitCommand -> ExIO ()
 executeHitCommand InitCommand = executeInitCommand
 executeHitCommand (CommitCommand message) = executeCommitCommand message

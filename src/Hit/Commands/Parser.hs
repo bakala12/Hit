@@ -1,5 +1,7 @@
-module Hit.Commands.Parser
-    where 
+-- | A module that alows parsing Hit commands
+module Hit.Commands.Parser(
+    parseHitCommand
+)where 
 
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
@@ -70,6 +72,7 @@ parseParameters _ = return InvalidCommand
 commandParser :: GenParser Char () HitCommand
 commandParser = string "hit" >> space >> parseCommandType >>= parseParameters
 
+-- | Parses the given input "String" and converts it to "HitCommand" instance
 parseHitCommand :: String -> ExIO HitCommand
 parseHitCommand input =  case TP.parse commandParser "" input of
     (Left e) -> throwE $ show e

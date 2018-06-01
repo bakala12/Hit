@@ -1,4 +1,10 @@
-module Hit.Commands.Print where
+-- | A module that provides helper methods to print varoius data
+module Hit.Commands.Print (
+    printChangesSmoothly,
+    printEachInLine,
+    showDiffOperation,
+    printMergeConflicts
+)where
 
 import Hit.Common.Data
 import Control.Monad.Trans.Class
@@ -23,20 +29,24 @@ printChangesSmoothlyHelper :: [Change] -> ExIO ()
 printChangesSmoothlyHelper [] = (lift $ putStrLn "Nothing to commit - working directory clean")
 printChangesSmoothlyHelper ch = printChanges "Modified: " isModified ch >> printChanges "New files: " isNew ch >> printChanges "Removed files:" isRemoved ch
 
+-- | Prints list of "Change"s
 printChangesSmoothly :: [Change] -> ExIO ()
 printChangesSmoothly list = getCurrentBranch >>= (\b -> case b of 
     (Just br) -> (lift $ putStrLn ("On branch "++br++":"))
     _ -> (lift $ putStrLn ("You are in deteached head state. Changes: "))) >> printChangesSmoothlyHelper list
 
+-- | Prints each "String" from the given list
 printEachInLine :: [String] -> ExIO ()
 printEachInLine [] = return ()
 printEachInLine (x:xs) = (lift $ putStrLn x) >> printEachInLine xs
 
+-- | Gets "String" representation for diff result
 showDiffOperation :: DiffOperation LineRange -> ExIO String
 showDiffOperation (Addition range lineNo) = return ("Addition at line "++(show lineNo)++":\n"++(unlines $ lrContents range)) 
 showDiffOperation (Deletion range lineNo) = return ("Deletion al line "++(show lineNo)++":\n"++(unlines $ lrContents range))
 showDiffOperation (Change a b) = return ("Change at line "++(show $ fst $ lrNumbers a)++":\n"++(unlines $ lrContents a)++"--->\n"++(unlines $ lrContents b))
 
+-- | Prints a list of "MergeConflicts"
 printMergeConflicts :: [MergeConflict] -> ExIO ()
 printMergeConflicts [] = lift $ putStrLn "Merge finished successfully"
 printMergeConflicts list = (lift $ putStrLn "Merge failed with followed conflicts. Resolve conflicts and commit them to finish merge") >> (mapM (return . show) list) >>= printEachInLine

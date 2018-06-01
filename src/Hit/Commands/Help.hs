@@ -1,5 +1,9 @@
+-- | A module that supports getting help for command
 {-# LANGUAGE OverloadedStrings #-}
-module Hit.Commands.Help where
+module Hit.Commands.Help (
+    getHelpForKeyWord,
+    getAvailableCommands
+)where
 
 import Data.String.Builder
 import Hit.Commands.Data
@@ -17,6 +21,7 @@ getCommandList = map getCommandKeyWord (M.keys keywordToCommandTypeMap)
 getAvailableCommandsBuilder :: Builder
 getAvailableCommandsBuilder = foldr (\a c -> c >> a ) (literal "Available commands (use hit help for details):\n") getCommandList 
 
+-- | Gets list of avaliable commands as "String"
 getAvailableCommands :: String
 getAvailableCommands = build getAvailableCommandsBuilder
 
@@ -57,6 +62,7 @@ getHelpText commandName parameters = do{
     getCommandParametersText parameters;
 }
 
+-- | Gets help "String" for a given keyword
 getHelpForKeyWord :: String -> String
 getHelpForKeyWord keyword = if M.member keyword keywordToCommandTypeMap 
     then build $ getHelpText keyword parameters

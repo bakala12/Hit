@@ -1,3 +1,4 @@
+-- | A module that defines Hit commands available in system
 module Hit.Commands.Data where
 
 import Hit.Common.Data
@@ -5,6 +6,7 @@ import Control.Monad.Trans.Except
 import Control.Monad.Trans.Class
 import qualified Data.Map.Strict as M
 
+-- | Represents a Hit command type
 data HitCommandType = InitCommandType |
                    CommitCommandType |
                    StatusCommandType |
@@ -26,6 +28,7 @@ data HitCommandType = InitCommandType |
                    InvalidCommandType
     deriving Show
 
+-- | A dictionary mapping kayword to "HitCommandType"     
 keywordToCommandTypeMap :: M.Map String HitCommandType
 keywordToCommandTypeMap = M.fromList [
     ("init", InitCommandType),
@@ -47,9 +50,11 @@ keywordToCommandTypeMap = M.fromList [
     ("resetall", ResetAllCommandType),
     ("checkoutc", CheckoutCommitCommandType)]
 
+-- | Converts "String" to "HitCommandType"
 readCommandType :: String -> HitCommandType
 readCommandType str = M.findWithDefault InvalidCommandType str keywordToCommandTypeMap
 
+-- | Represents a Hit command 
 data HitCommand = InitCommand |
                   CommitCommand CommitMessage | 
                   StatusCommand |
@@ -71,6 +76,7 @@ data HitCommand = InitCommand |
                   InvalidCommand
     deriving Show
 
+-- | A dictionary mapping parameter name to its describtion
 parameterDefinitions :: M.Map String String
 parameterDefinitions = M.fromList [
     ("commitMessage", "string containing commit message"),
@@ -81,7 +87,8 @@ parameterDefinitions = M.fromList [
     ("commitNumbers", "number of commits in the history"),
     ("filePath", "path to file in repository"),
     ("commitHash", "existing commit hash")]
-        
+
+-- | Gets a list of parameter name for the given "HitCommandType"
 getParametersForCommand :: HitCommandType -> [String]
 getParametersForCommand CommitCommandType = ["commitMessage"]
 getParametersForCommand NewBranchCommandType = ["branch"]
@@ -98,6 +105,7 @@ getParametersForCommand ResetFileCommandType = ["filePath"]
 getParametersForCommand CheckoutCommitCommandType = ["commitHash"]
 getParametersForCommand _ = []
 
+-- | A dictionary mapping keyword to "HitCommand" describtion
 commandDescribtions :: M.Map String String
 commandDescribtions = M.fromList [
     ("init", "Initializes a new hit repository"),
