@@ -1,4 +1,9 @@
-module Hit.Repository.Checkout where
+-- | Provides functions that changes repository state between branches and commits
+module Hit.Repository.Checkout (
+    makeHashCheckout,
+    changeBranch,
+    changeToCommit
+)where
 
 import Hit.Common.Data
 import Control.Monad.Trans.Class
@@ -19,7 +24,7 @@ applyNewFile :: FilePath -> Tree -> ExIO ()
 applyNewFile path tree = findFileInTree path tree >>= return . fileContent >>= createFileWithParentDirectories path
 
 applyRemoveFile :: FilePath -> ExIO ()
-applyRemoveFile path = removeFileInTree path
+applyRemoveFile path = removeFileFromTree path
 
 applyChange :: Tree -> Change -> ExIO ()
 applyChange tree (Removed path) = applyNewFile path tree
@@ -37,12 +42,14 @@ makeTreeCheckout tree = do{
     makeChangesCheckout ch tree
 }
 
+-- | Changes repository state to be like in the given commit hash
 makeHashCheckout :: Hash -> ExIO ()
 makeHashCheckout hash = getVersion hash >>= makeTreeCheckout
 
 makeBranchCheckout :: Branch -> ExIO ()
 makeBranchCheckout branch = getBranchCommitHash branch >>= makeHashCheckout
 
+-- | Changes the current branch and restores repository state to be exaclty as in the last commit from the given branch
 changeBranch :: Branch -> ExIO ()
 changeBranch branch = doesBranchExist branch >>= (\r -> if r then return () else throwE "Branch does not exist") >> isCurrentBranch branch >>= (\r -> if r 
     then throwE "Cannot checkout to current branch"
@@ -50,6 +57,8 @@ changeBranch branch = doesBranchExist branch >>= (\r -> if r then return () else
         then makeBranchCheckout branch >> changeCurrentBranch branch 
         else throwE "Your directory has changes that will be lost after checkout. Commit them first. Checkout aborted")
 
+-- | Changes repository state to be like in the given commit hash.
+-- | This sets repository to a deteached head mode
 changeToCommit :: Hash -> ExIO ()
 changeToCommit hash = getRepositoryChanges >>= (\r -> if r == [] 
     then getFullHash hash >>= (\h -> makeHashCheckout h >> return h) >>= writeCommitDeteachedHead

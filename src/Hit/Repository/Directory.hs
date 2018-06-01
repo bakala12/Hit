@@ -1,4 +1,10 @@
-module Hit.Repository.Directory where
+-- | A module that exports various usefull functions for operationg on "Tree" object versions
+module Hit.Repository.Directory (
+    listDirectory,
+    getTree,
+    findFileInTree,
+    removeFileFromTree
+)where
 
 import Hit.Common.Data
 import Hit.Common.File
@@ -25,6 +31,7 @@ blobToDirectoryEntry dirPath name store = do {
     return $ DirectoryEntry {permissions = p, entryName = name, entryHash = h} 
 } 
 
+-- | Returns a list of entries in a given directory that are not ignored by Hit
 listDirectory :: FilePath -> ExIO [FilePath]
 listDirectory path = (getNotIgnoredDirectoryEntries path)
 
@@ -46,7 +53,10 @@ toDirectoryEntry dirPath store name = isDirectory (dirPath++"/"++name) >>= (\b -
 optionalStore :: Bool -> Tree -> ExIO Tree
 optionalStore store tree = (if store then storeObject tree else return ()) >> return tree
 
-getTree :: FilePath -> Bool -> ExIO Tree
+-- | Creates and returns a "Tree" object for the current directory
+getTree :: FilePath -- ^ path to directory 
+        -> Bool -- ^ specifies whether created "Tree" will be saved in repository
+        -> ExIO Tree
 getTree path store = listDirectory path >>= (mapM (toDirectoryEntry path store)) >>= return . Tree >>= (optionalStore store)
 
 findFileInTreeHelper :: [FilePath] -> Hash -> ExIO Hash
@@ -60,6 +70,7 @@ findFileInTreeHelper (x:xs) hash = do{
         (Just x) -> findFileInTreeHelper xs (entryHash x)
 }
 
+-- | Finds a "Blob" object corresponding with a given file in a given tree.
 findFileInTree :: FilePath -> Tree -> ExIO Blob
 findFileInTree path tree = do{
     rep <- getRepositoryDirectory;
@@ -79,8 +90,9 @@ removeFileInTreeHelper path (x:xs) = do{
         else return False
 }
 
-removeFileInTree :: FilePath -> ExIO ()
-removeFileInTree path = do{
+-- | Removes a given file from a repository
+removeFileFromTree :: FilePath -> ExIO ()
+removeFileFromTree path = do{
     rep <- getRepositoryDirectory;
     spl <- return $ splitAndGetRest rep path;
     removeFileInTreeHelper rep spl;

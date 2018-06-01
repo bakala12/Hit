@@ -16,7 +16,6 @@ import Control.Monad
 import Hit.Common.File
 import Data.String.Builder
 import Hit.Repository.Directory
-import Hit.Repository.TreeCompare
 import Hit.Repository.Commit
 import Hit.Repository.General.Data
 

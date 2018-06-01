@@ -1,4 +1,9 @@
-module Hit.Repository.Changes where
+module Hit.Repository.Changes (
+    compareDirectoryTrees,
+    getRepositoryChanges,
+    getStatus,
+    compareTrees
+)where
 
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
@@ -125,9 +130,14 @@ convertChanges = concatMapM convertToChanges
 compareDirectories :: FilePath -> [DirectoryEntry] -> [DirectoryEntry] -> ExIO [Change]
 compareDirectories dirPath current last = convertChanges $ getMatchingChanges dirPath current last
 
-compareDirectoryTrees :: FilePath -> Tree -> Tree -> ExIO [Change]
+-- | Gets a list of changes between two versions of directory
+compareDirectoryTrees :: FilePath -- ^ path to directory 
+                      -> Tree -- ^ first version of directory
+                      -> Tree -- ^ second version of directory
+                      -> ExIO [Change] -- ^ list of changes
 compareDirectoryTrees dirPath currentTree lastSavedTree = compareDirectories dirPath (entries currentTree) (entries lastSavedTree)
 
+-- | Gets a list of changes made in working directory since last commit
 getRepositoryChanges :: ExIO [Change]
 getRepositoryChanges = do{
     p <- getRepositoryDirectory;
@@ -136,7 +146,58 @@ getRepositoryChanges = do{
     compareDirectoryTrees p current lastSaved;
 }
 
+-- | Gets a list of changes made in working directory since last commit
 getStatus :: ExIO [Change]
 getStatus = isInMergeState >>= (\r -> if r 
     then lift $ putStrLn "You are in merge mode. Commit your changes to finish merging"
     else return ()) >> getRepositoryChanges
+
+-- Comparing trees    
+getNewFilesTree' :: FilePath -> Tree -> ExIO [Change]
+getNewFilesTree' path tree = (return $ entries tree) >>= concatMapM (\e -> convertNew' (path++"/"++(entryName e)) e)
+    
+getNewFiles' :: FilePath -> DirectoryEntry -> ExIO [Change]
+getNewFiles' path e = do{
+    hash <- return $ entryHash e;
+    objP <- getPathToObject hash;
+    typ <- getHitObjectType objP;
+    case typ of
+        CommitType -> throwE "Invalid object type - commit"
+        BlobType -> return [New path]
+        TreeType -> restoreTree objP >>= getNewFilesTree' path
+}
+    
+convertNew' :: FilePath -> DirectoryEntry -> ExIO [Change]
+convertNew' path e = do{
+    isDir <- return ((permissions e) == "040000");
+    if isDir
+        then getNewFiles' path e
+        else return [New path]
+}
+    
+convertMatching' :: FilePath -> DirectoryEntry -> DirectoryEntry -> ExIO [Change]
+convertMatching' path current last = if ((permissions current) == "040000") 
+    then getDirectoryChanges' path (entryHash current) (entryHash last)
+    else return [Modified path]
+    
+getDirectoryChanges' :: FilePath -> Hash -> Hash -> ExIO [Change]
+getDirectoryChanges' path currentHash lastHash = do{
+    last <- getTreeFromHash lastHash;
+    curr <- getTreeFromHash currentHash;
+    compareTrees path curr last
+}
+    
+convertToChanges' :: MatchingEntry -> ExIO [Change]
+convertToChanges' (NewEntry p e) = convertNew' (p++"/"++(entryName e)) e
+convertToChanges' (RemovedEntry p e) = convertRemoved (p++"/"++(entryName e)) e
+convertToChanges' (Matching p branch current) = convertMatching' (p++"/"++(entryName branch)) branch current
+    
+convertChanges' :: [MatchingEntry] -> ExIO [Change]
+convertChanges' = concatMapM convertToChanges' 
+    
+-- | Gets a list of changes between two "Tree" objects associated with the given directory
+compareTrees :: FilePath -- ^ path to directory
+             -> Tree -- ^ first version of directory
+             -> Tree -- ^ second version of directory
+             -> ExIO [Change] -- ^ list of changes
+compareTrees path current branch = convertChanges' $ getMatchingChanges path (entries current) (entries branch)  
