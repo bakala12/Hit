@@ -18,6 +18,7 @@ import Hit.Store
 import Hit.Common.List
 import Hit.Common.Repository
 import Hit.Repository.General.References
+import Control.Concurrent.Async
 
 getBlob :: FilePath -> ExIO Blob
 getBlob path = (readWholeFile path) >>= return . Blob
@@ -57,7 +58,50 @@ optionalStore store tree = (if store then storeObject tree else return ()) >> re
 getTree :: FilePath -- ^ path to directory 
         -> Bool -- ^ specifies whether created "Tree" will be saved in repository
         -> ExIO Tree
-getTree path store = listDirectory path >>= (mapM (toDirectoryEntry path store)) >>= return . Tree >>= (optionalStore store)
+--getTree path store = listDirectory path >>= (mapM (toDirectoryEntry path store)) >>= return . Tree >>= (optionalStore store)
+getTree = getTree'
+
+blobToDirectoryEntry' :: FilePath -> String -> Bool -> IO (Either String DirectoryEntry)
+blobToDirectoryEntry' dirPath name store = runExceptT $ blobToDirectoryEntry dirPath name store
+
+treeToDirectoryEntryHelper :: FilePath -> String -> Bool -> ExIO DirectoryEntry
+treeToDirectoryEntryHelper dirPath name store = do{
+    path <- return (dirPath++"/"++name);
+    p <- getHitPermissions path;
+    t <- getTree' path store;
+    h <- return $ hashObject t;
+    if store then storeObject t else return ();
+    return $ DirectoryEntry {permissions = p, entryName = name, entryHash = h} 
+}
+
+treeToDirectoryEntry' :: FilePath -> String -> Bool -> IO (Either String DirectoryEntry)
+treeToDirectoryEntry' path name store = runExceptT $ treeToDirectoryEntryHelper path name store
+
+toDirectoryEntryHelper :: FilePath -> Bool -> String -> Bool -> IO (Either String DirectoryEntry)
+toDirectoryEntryHelper dirPath store name isDir = if isDir 
+    then treeToDirectoryEntry' dirPath name store
+    else blobToDirectoryEntry' dirPath name store
+
+toDirectoryEntry' :: FilePath -> Bool -> String -> IO (Either String DirectoryEntry)
+toDirectoryEntry' dirPath store name = (runExceptT $ isDirectory (dirPath++"/"++name)) >>= (\b -> case b of
+    (Left err) -> return $ Left err
+    (Right x) -> toDirectoryEntryHelper dirPath store name x)
+
+convertMapConcurrently :: FilePath -> Bool -> [FilePath] -> IO [(Either String DirectoryEntry)]
+convertMapConcurrently dirPath store paths = mapConcurrently (toDirectoryEntry' dirPath store) paths
+
+reduce :: [Either String DirectoryEntry] -> ExIO [DirectoryEntry]
+reduce [] = return []
+reduce (x:xs) = do{
+    redX <- (case x of 
+        (Left e) -> throwE e
+        (Right a) -> return a );   
+    rest <- reduce xs;
+    return (redX:rest)
+}
+        
+getTree' :: FilePath -> Bool -> ExIO Tree
+getTree' path store = listDirectory path >>= lift . (convertMapConcurrently path store) >>= reduce >>= return . Tree >>= (optionalStore store)
 
 findFileInTreeHelper :: [FilePath] -> Hash -> ExIO Hash
 findFileInTreeHelper [] hash = return hash
