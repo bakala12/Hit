@@ -36,30 +36,8 @@ blobToDirectoryEntry dirPath name store = do {
 listDirectory :: FilePath -> ExIO [FilePath]
 listDirectory path = (getNotIgnoredDirectoryEntries path)
 
-treeToDirectoryEntry :: FilePath -> String -> Bool -> ExIO DirectoryEntry
-treeToDirectoryEntry dirPath name store = do{
-    path <- return (dirPath++"/"++name);
-    p <- getHitPermissions path;
-    t <- getTree path store;
-    h <- return $ hashObject t;
-    if store then storeObject t else return ();
-    return $ DirectoryEntry {permissions = p, entryName = name, entryHash = h} 
-}
-
-toDirectoryEntry :: FilePath -> Bool -> String -> ExIO DirectoryEntry
-toDirectoryEntry dirPath store name = isDirectory (dirPath++"/"++name) >>= (\b -> if b
-    then treeToDirectoryEntry dirPath name store
-    else blobToDirectoryEntry dirPath name store)
-
 optionalStore :: Bool -> Tree -> ExIO Tree
 optionalStore store tree = (if store then storeObject tree else return ()) >> return tree
-
--- | Creates and returns a "Tree" object for the current directory
-getTree :: FilePath -- ^ path to directory 
-        -> Bool -- ^ specifies whether created "Tree" will be saved in repository
-        -> ExIO Tree
---getTree path store = listDirectory path >>= (mapM (toDirectoryEntry path store)) >>= return . Tree >>= (optionalStore store)
-getTree = getTree'
 
 blobToDirectoryEntry' :: FilePath -> String -> Bool -> IO (Either String DirectoryEntry)
 blobToDirectoryEntry' dirPath name store = runExceptT $ blobToDirectoryEntry dirPath name store
@@ -68,7 +46,7 @@ treeToDirectoryEntryHelper :: FilePath -> String -> Bool -> ExIO DirectoryEntry
 treeToDirectoryEntryHelper dirPath name store = do{
     path <- return (dirPath++"/"++name);
     p <- getHitPermissions path;
-    t <- getTree' path store;
+    t <- getTree path store;
     h <- return $ hashObject t;
     if store then storeObject t else return ();
     return $ DirectoryEntry {permissions = p, entryName = name, entryHash = h} 
@@ -99,9 +77,12 @@ reduce (x:xs) = do{
     rest <- reduce xs;
     return (redX:rest)
 }
-        
-getTree' :: FilePath -> Bool -> ExIO Tree
-getTree' path store = listDirectory path >>= lift . (convertMapConcurrently path store) >>= reduce >>= return . Tree >>= (optionalStore store)
+
+-- | Creates and returns a "Tree" object for the current directory
+getTree :: FilePath -- ^ path to directory 
+        -> Bool -- ^ specifies whether created "Tree" will be saved in repository
+        -> ExIO Tree
+getTree path store = listDirectory path >>= lift . (convertMapConcurrently path store) >>= reduce >>= return . Tree >>= (optionalStore store)
 
 findFileInTreeHelper :: [FilePath] -> Hash -> ExIO Hash
 findFileInTreeHelper [] hash = return hash
