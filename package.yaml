@@ -1,7 +1,7 @@
 name:                Hit
 version:             0.1.0.0
 github:              "bakala12/Hit"
-license:             BSD3
+license:             MIT
 author:              "Mateusz Bąkała"
 maintainer:          "bakala12@github.com"
 copyright:           "2018 Mateusz Bąkała"
@@ -17,7 +17,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on Github at <https://github.com/githubuser/Hit#readme>
+description: Hit - Haskell Git. Simple implementation of some basic Git commands in haskell. Please see the README on Github at <https://github.com/bakala12/Hit#readme>
 
 dependencies:
 - base >= 4.7 && < 5
