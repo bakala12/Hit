@@ -75,5 +75,5 @@ commandParser = string "hit" >> space >> parseCommandType >>= parseParameters
 -- | Parses the given input "String" and converts it to "HitCommand" instance
 parseHitCommand :: String -> ExIO HitCommand
 parseHitCommand input =  case TP.parse commandParser "" input of
-    (Left e) -> throwE $ show e
+    (Left e) -> throwE ("Invalid command: "++ (show e))
     (Right x) -> return x
