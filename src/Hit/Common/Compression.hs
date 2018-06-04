@@ -5,7 +5,7 @@ import Data.ByteString.Lazy.Char8
 import Codec.Compression.Zlib
 import qualified Data.ByteString.Lazy.Internal as B
 
--- | Compresses a given string
+-- | Compresses a given "String"
 compressContent :: String -> B.ByteString
 compressContent content = compress $ pack content
 

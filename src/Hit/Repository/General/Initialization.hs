@@ -1,4 +1,4 @@
--- A module that exposes functions connected with Hit repository
+-- | A module that exposes functions connected with Hit repository
 module Hit.Repository.General.Initialization (
     initRepository,
     isInitialized

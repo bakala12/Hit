@@ -4,7 +4,6 @@ module Hit.Repository.General.Branch (
     removeBranch,
     doesBranchExist,
     isCurrentBranch,
-    getCurrentBranch,
     changeCurrentBranch,
     listBranches
 ) where

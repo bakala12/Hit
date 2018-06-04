@@ -8,7 +8,7 @@ module Hit.Common.List (
 
 import Control.Monad
 
--- | A "concatMap" versions that operates on external monad
+-- | A concatMap version that operates on external monad
 concatMapM :: (Monad m) => (a-> m [b]) -> [a] -> m [b]
 concatMapM f [] = return []
 concatMapM f (x:xs) = do{

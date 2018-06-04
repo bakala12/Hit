@@ -31,6 +31,6 @@ toBytes hash = snd $ foldr helper ((-1),[]) hash
 packHash :: Hash -> String
 packHash hash = toBytes hash >>= T.printf "%c"
 
--- | Gets the packed 20 bytes "String" and returns 40 charaters hash associated with it. This is reverse operation to "packHash"
+-- | Gets the packed 20 bytes "String" and returns 40 charaters hash associated with it. This is reverse operation to packHash
 unpackHash :: String -> String
 unpackHash str = str >>= T.printf "%02x"

@@ -1,4 +1,4 @@
--- A module that provides a way to store and restore Hit objects to and from files.
+-- | A module that provides a way to store and restore Hit objects to and from files.
 module Hit.Store (
     getPathToObject,
     storeObject,

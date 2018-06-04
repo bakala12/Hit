@@ -1,4 +1,4 @@
--- | A module that alows parsing Hit commands
+-- | A module that allows parsing Hit commands
 module Hit.Commands.Parser(
     parseHitCommand
 )where 

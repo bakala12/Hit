@@ -1,4 +1,4 @@
--- | A module that provides a method to getting commit history
+-- | A module that provides a method to get commit history
 module Hit.Repository.Log (
     getLog
 )where

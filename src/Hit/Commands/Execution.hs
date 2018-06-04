@@ -1,4 +1,4 @@
--- | A module that alows executing Hit commands
+-- | A module that allows executing Hit commands
 module Hit.Commands.Execution (
     executeHitCommand
 )where

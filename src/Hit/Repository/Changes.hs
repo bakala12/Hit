@@ -1,3 +1,4 @@
+-- | A module that is responsible for finding changes between various repository versions
 module Hit.Repository.Changes (
     compareDirectoryTrees,
     getRepositoryChanges,

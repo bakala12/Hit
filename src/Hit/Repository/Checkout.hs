@@ -1,4 +1,4 @@
--- | Provides functions that changes repository state between branches and commits
+-- | Provides functions that change repository state between branches and commits
 module Hit.Repository.Checkout (
     makeHashCheckout,
     changeBranch,
@@ -58,7 +58,7 @@ changeBranch branch = doesBranchExist branch >>= (\r -> if r then return () else
         else throwE "Your directory has changes that will be lost after checkout. Commit them first. Checkout aborted")
 
 -- | Changes repository state to be like in the given commit hash.
--- | This sets repository to a deteached head mode
+-- This sets repository to a deteached head mode
 changeToCommit :: Hash -> ExIO ()
 changeToCommit hash = getRepositoryChanges >>= (\r -> if r == [] 
     then getFullHash hash >>= (\h -> makeHashCheckout h >> return h) >>= writeCommitDeteachedHead

@@ -85,7 +85,7 @@ getPath (Modified p) = p
   
 -- | Represents a merge conflict
 data MergeConflict = RemovedConflict FilePath -- ^ There is no file in merged branch version but it is on current branch
-                    | ModifiedConflict FilePath -- ^ THe file has been modified on merged branch 
+                    | ModifiedConflict FilePath -- ^ The file has been modified on merged branch 
   
 instance Show MergeConflict where
     show (RemovedConflict p) = "Conflict -> Removed file: "++p++" -> file was not removed, remove it manually if needed"

@@ -32,7 +32,7 @@ convert result = lift result >>= (\r -> case r of
     (Left e) -> throwE e
     (Right res) -> return res)
 
--- | Executes the given "IO" operation and returns it result or error in "ExIO" monad 
+-- | Executes the given "IO" operation and returns its result or error in "ExIO" monad 
 secureFileOperation :: IO a -> ExIO a
 secureFileOperation op = convert $ catchIOError (op >>= return . Right) setError
 
@@ -62,7 +62,7 @@ readWholeFile path = secureFileOperation (IOS.readFile path)
 writeWholeFile :: FilePath -> String -> ExIO ()
 writeWholeFile path content = secureFileOperation (writeFile path content)
 
--- | Checks is a given path indicates a directory
+-- | Checks if a given path indicates a directory
 isDirectory :: FilePath -> ExIO Bool
 isDirectory path = secureFileOperation $ doesDirectoryExist path
 
@@ -70,7 +70,7 @@ isDirectory path = secureFileOperation $ doesDirectoryExist path
 getDirectoryEntries :: FilePath -> ExIO [String]
 getDirectoryEntries path = secureFileOperation $ listDirectory path
 
--- | Check if file exists
+-- | Checks if file exist
 isExistingFile :: FilePath -> ExIO Bool
 isExistingFile path = secureFileOperation $ doesFileExist path
 
@@ -78,7 +78,7 @@ isExistingFile path = secureFileOperation $ doesFileExist path
 removeExistingFile :: FilePath -> ExIO ()
 removeExistingFile path = secureFileOperation $ removeFile path
 
--- | Removes common part of first path from an second one and return splitted rest of second path
+-- | Removes common part of first path from the second one and return splitted rest of second path
 splitAndGetRest :: FilePath -- ^ first (base) path 
                 -> FilePath -- ^ second path
                 -> [FilePath] -- ^ spliitted rest of second path

@@ -10,7 +10,7 @@ developed to behave as close as possible to original Git, but still some simplif
 ## Available commands
 For now the following commands are implemented:
 - **hit init** - Initializes empty Hit repository
-- **hit status** - Gets the status of repository, in particular list of changed made in working directory
+- **hit status** - Gets the status of repository, in particular list of changes made in working directory
 - **hit commit** - Commits the working directory state
 - **hit newbranch** - Creates a new branch
 - **hit removebranch** - Removes existing branch

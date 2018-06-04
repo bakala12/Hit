@@ -57,7 +57,7 @@ readCommandType str = M.findWithDefault InvalidCommandType str keywordToCommandT
 -- | Represents a Hit command 
 data HitCommand = InitCommand | -- ^ hit init - Initializes empty Hit repository
                   CommitCommand CommitMessage | -- ^ hit commit - Commits the working directory state
-                  StatusCommand | -- ^ hit status - Gets the status of repository, in particular list of changed made in working directory
+                  StatusCommand | -- ^ hit status - Gets the status of repository, in particular list of changes made in working directory
                   NewBranchCommand Branch | -- ^ hit newbranch - Creates a new branch
                   RemoveBranchCommand Branch | -- ^ hit removebranch - Removes existing branch
                   CheckoutBranchCommand Branch | -- ^ hit checkout - Checkout to an existing branch
