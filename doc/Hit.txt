@@ -6,7 +6,7 @@
 --   haskell. Please see the README on Github at
 --   <a>https://github.com/bakala12/Hit#readme</a>
 @package Hit
-@version 0.1.0.0
+@version 1.0.0.0
 
 
 -- | A module that provides file compression methods used in Hit
