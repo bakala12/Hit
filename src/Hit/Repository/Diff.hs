@@ -20,7 +20,7 @@ fileContentsDiff baseVersionLines changedVersionLines = diffToLineRanges $ getGr
 
 getFileDiff :: FilePath -> Tree -> ExIO [DiffOperation LineRange]
 getFileDiff path baseTree = do {
-    baseVersion <- findFileInTree path baseTree;
+    baseVersion <- catchE (findFileInTree path baseTree) (\e -> throwE "Cannot find file in last commit tree");
     changedVersion <- readWholeFile path;
     baseLines <- return $ lines $ fileContent baseVersion;
     changedLines <- return $ lines changedVersion;
@@ -37,8 +37,8 @@ getDiffFromCurrentVersion path = do {
 
 getFileDiff' :: FilePath -> Tree -> Tree -> ExIO [DiffOperation LineRange]
 getFileDiff' path baseTree changedTree = do {
-    baseVersion <- findFileInTree path baseTree;
-    changedVersion <- findFileInTree path changedTree;
+    baseVersion <- catchE (findFileInTree path baseTree) (\e -> throwE "Cannot find file in first tree");
+    changedVersion <- catchE (findFileInTree path changedTree) (\e -> throwE "Cannot find file in second tree");
     baseLines <- return $ lines $ fileContent baseVersion;
     changedLines <- return $ lines $ fileContent changedVersion;
     return $ fileContentsDiff baseLines changedLines
