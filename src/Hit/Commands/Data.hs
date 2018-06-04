@@ -7,25 +7,25 @@ import Control.Monad.Trans.Class
 import qualified Data.Map.Strict as M
 
 -- | Represents a Hit command type
-data HitCommandType = InitCommandType |
-                   CommitCommandType |
-                   StatusCommandType |
-                   NewBranchCommandType |
-                   RemoveBranchCommandType |
-                   CheckoutBranchCommandType |
-                   SetConfigCommandType |
-                   ListBranchCommandType |
-                   GetConfigCommandType |
-                   ListCommandsCommandType |
-                   HelpCommandType |
-                   LogCommandType |
-                   CurrentFileDiffCommandType |
-                   CommittedFileDiffCommandType |
-                   MergeCommandType |
-                   ResetFileCommandType |
-                   ResetAllCommandType |
-                   CheckoutCommitCommandType |
-                   InvalidCommandType
+data HitCommandType = InitCommandType | -- ^ Represents "InitCommand" (hit init)
+                   CommitCommandType | -- ^ Represents "CommitCommand" (hit commit)
+                   StatusCommandType | -- ^ Represents "StatusCommand" (hit status)
+                   NewBranchCommandType | -- ^ Represents "NewBranchCommand" (hit newbranch)
+                   RemoveBranchCommandType | -- ^ Represents "RemoveBranchCommand" (hit removebranch)
+                   CheckoutBranchCommandType | -- ^ Represents "CheckoutBranchCommand" (hit checkout)
+                   SetConfigCommandType | -- ^ Represents "SetConfigCommand" (hit setconfig)
+                   ListBranchCommandType | -- ^ Represents "ListBranchCommand" (hit listbranch)
+                   GetConfigCommandType | -- ^ Represents "GetConfigCommand" (hit getconfig)
+                   ListCommandsCommandType | -- ^ Represents "ListCommandsCommand" (hit listcommands)
+                   HelpCommandType | -- ^ Represents "HelpCommand" (hit help)
+                   LogCommandType | -- ^ Represents "LogCommand" (hit log)
+                   CurrentFileDiffCommandType | -- ^ Represents "CurrentFileDiffCommand" (hit diff)
+                   CommittedFileDiffCommandType | -- ^ Represents "CommittedFileDiffCommand" (hit diffc)
+                   MergeCommandType | -- ^ Represents "MergeCommand" (hit merge)
+                   ResetFileCommandType | -- ^ Represents "ResetFileCommand" (hit reset)
+                   ResetAllCommandType | -- ^ Represents "ResetAllCommand" (hit resetall)
+                   CheckoutCommitCommandType | -- ^ Represents "CheckoutCommitCommand" (hit checkoutc)
+                   InvalidCommandType -- ^ Represents "InvalidCommand"
     deriving Show
 
 -- | A dictionary mapping kayword to "HitCommandType"     
@@ -55,25 +55,25 @@ readCommandType :: String -> HitCommandType
 readCommandType str = M.findWithDefault InvalidCommandType str keywordToCommandTypeMap
 
 -- | Represents a Hit command 
-data HitCommand = InitCommand |
-                  CommitCommand CommitMessage | 
-                  StatusCommand |
-                  NewBranchCommand Branch | 
-                  RemoveBranchCommand Branch | 
-                  CheckoutBranchCommand Branch |
-                  SetConfigCommand String String |
-                  ListBranchCommand |
-                  GetConfigCommand String |
-                  ListCommandsCommand |
-                  HelpCommand String |
-                  LogCommand Int |
-                  CurrentFileDiffCommand FilePath |
-                  CommittedFileDiffCommand FilePath Hash Hash |
-                  MergeCommand Branch |
-                  ResetFileCommand FilePath |
-                  ResetAllCommand |
-                  CheckoutCommitCommand Hash |
-                  InvalidCommand
+data HitCommand = InitCommand | -- ^ hit init - Initializes empty Hit repository
+                  CommitCommand CommitMessage | -- ^ hit commit - Commits the working directory state
+                  StatusCommand | -- ^ hit status - Gets the status of repository, in particular list of changed made in working directory
+                  NewBranchCommand Branch | -- ^ hit newbranch - Creates a new branch
+                  RemoveBranchCommand Branch | -- ^ hit removebranch - Removes existing branch
+                  CheckoutBranchCommand Branch | -- ^ hit checkout - Checkout to an existing branch
+                  SetConfigCommand String String | -- ^ hit setconfig - Saves given key and value in .hitconfig file
+                  ListBranchCommand | -- ^ hit listbranch - Lists existing branches
+                  GetConfigCommand String | -- ^ hit getconfig - Gets value from .hitconfig file saved at given key
+                  ListCommandsCommand | -- ^ hit listcommands - Lists all available commands
+                  HelpCommand String | -- ^ hit help - Displays help page for given command
+                  LogCommand Int | -- ^ hit log - Get a given number of commits from history
+                  CurrentFileDiffCommand FilePath | -- ^ hit diff - Lists changes made to the given file from last commit
+                  CommittedFileDiffCommand FilePath Hash Hash | -- ^ hit diffc - Compares version of the same file in two commits
+                  MergeCommand Branch | -- ^ hit merge - Merges the given branch into a current one
+                  ResetFileCommand FilePath | -- ^ hit reset - Resets changes made to a file in a working directory
+                  ResetAllCommand | -- ^ hit resetall - Resets all changes made in working directory
+                  CheckoutCommitCommand Hash | -- ^ hit checkoutc - Checkout to the given commit (puts repository in detached head mode)
+                  InvalidCommand -- ^ Invalid command 
     deriving Show
 
 -- | A dictionary mapping parameter name to its describtion

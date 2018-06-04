@@ -16,7 +16,7 @@ For now the following commands are implemented:
 - **hit removebranch** - Removes existing branch
 - **hit listbranch** - Lists existing branches
 - **hit checkout** - Checkout to an existing branch
-- **hit checkoutc** - Checkout to the given commit (put repository in detached head mode)
+- **hit checkoutc** - Checkout to the given commit (puts repository in detached head mode)
 - **hit diff** - Lists changes made to the given file from last commit
 - **hit diffc** - Compares version of the same file in two commits
 - **hit reset** - Resets changes made to a file in a working directory
